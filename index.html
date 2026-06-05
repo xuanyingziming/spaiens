@@ -1,0 +1,2046 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>人类简史 · 时间线 | Sapiens Timeline</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400&family=Noto+Sans+SC:wght@300;400;500&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ============================================================
+       DESIGN SYSTEM — CSS Variables
+       ============================================================ */
+    :root {
+      --bg-deep: #080D16;
+      --bg-mid: #0D1B2A;
+      --star-white: #E6EDF3;
+      --gold: #D4A853;
+      --gold-dim: rgba(212, 168, 83, 0.3);
+      --era-cognitive: #7B9EBD;
+      --era-agricultural: #C4956A;
+      --era-unification: #8B6B9E;
+      --era-scientific: #5FA8B4;
+      --card-bg: rgba(13, 17, 23, 0.85);
+      --text-primary: #E6EDF3;
+      --text-secondary: #8B949E;
+      --card-border: rgba(212, 168, 83, 0.3);
+      --font-serif: 'Noto Serif SC', serif;
+      --font-sans: 'Noto Sans SC', 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-en: 'Inter', sans-serif;
+    }
+
+    /* ============================================================
+       RESET & BASE
+       ============================================================ */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: var(--bg-deep);
+      font-family: var(--font-sans);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* ============================================================
+       STARFIELD CANVAS
+       ============================================================ */
+    #starfield {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      z-index: 1;
+    }
+
+    /* ============================================================
+       OVERLAY CONTAINER
+       ============================================================ */
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* ============================================================
+       ERA LABELS (top bar)
+       ============================================================ */
+    #era-labels {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: auto;
+    }
+
+    .era-tag {
+      padding: 8px 20px;
+      background: rgba(13, 17, 23, 0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--card-border);
+      border-radius: 0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 0.95em;
+      font-weight: 400;
+      text-align: center;
+      white-space: nowrap;
+      outline: none;
+      position: relative;
+    }
+
+    .era-tag:first-child {
+      border-radius: 8px 0 0 8px;
+    }
+
+    .era-tag:last-child {
+      border-radius: 0 8px 8px 0;
+    }
+
+    .era-tag span {
+      display: block;
+      font-size: 0.7em;
+      opacity: 0.6;
+      font-family: var(--font-en);
+      font-weight: 300;
+      margin-top: 1px;
+    }
+
+    .era-tag[data-era="cognitive"] {
+      border-left: 2px solid var(--era-cognitive);
+    }
+
+    .era-tag[data-era="agricultural"] {
+      border-left: 2px solid var(--era-agricultural);
+    }
+
+    .era-tag[data-era="unification"] {
+      border-left: 2px solid var(--era-unification);
+    }
+
+    .era-tag[data-era="scientific"] {
+      border-left: 2px solid var(--era-scientific);
+    }
+
+    .era-tag:hover {
+      background: rgba(212, 168, 83, 0.15);
+      border-color: rgba(212, 168, 83, 0.5);
+    }
+
+    .era-tag:focus-visible {
+      box-shadow: 0 0 0 2px var(--gold-dim);
+    }
+
+    /* ============================================================
+       DETAIL CARD (frosted glass)
+       ============================================================ */
+    #detail-card {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 640px;
+      width: 90vw;
+      background: var(--card-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 32px;
+      z-index: 100;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      pointer-events: auto;
+      border-top: 2px solid var(--gold);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 80px rgba(212, 168, 83, 0.05);
+    }
+
+    #detail-card.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -48%);
+    }
+
+    .card-inner {
+      position: relative;
+    }
+
+    .card-close {
+      position: absolute;
+      top: -16px;
+      right: -16px;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 24px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px 8px;
+      border-radius: 50%;
+      transition: color 0.25s ease, background 0.25s ease;
+      z-index: 5;
+    }
+
+    .card-close:hover {
+      color: var(--gold);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .card-close:focus-visible {
+      outline: 2px solid var(--gold-dim);
+      outline-offset: 2px;
+    }
+
+    .card-nav {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .card-nav button {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-primary);
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: all 0.25s ease;
+      font-family: var(--font-sans);
+    }
+
+    .card-nav button:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(212, 168, 83, 0.08);
+    }
+
+    .card-nav button:focus-visible {
+      outline: 2px solid var(--gold-dim);
+      outline-offset: 2px;
+    }
+
+    .card-era-tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-size: 0.75em;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+      font-family: var(--font-en);
+      font-weight: 500;
+    }
+
+    .card-era-tag.cognitive {
+      background: rgba(123, 158, 189, 0.2);
+      color: var(--era-cognitive);
+    }
+
+    .card-era-tag.agricultural {
+      background: rgba(196, 149, 106, 0.2);
+      color: var(--era-agricultural);
+    }
+
+    .card-era-tag.unification {
+      background: rgba(139, 107, 158, 0.2);
+      color: var(--era-unification);
+    }
+
+    .card-era-tag.scientific {
+      background: rgba(95, 168, 180, 0.2);
+      color: var(--era-scientific);
+    }
+
+    .card-year {
+      font-family: var(--font-mono);
+      color: var(--gold);
+      font-size: 1.1em;
+      margin-bottom: 2px;
+    }
+
+    .card-year-en {
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+      font-size: 0.85em;
+      margin-bottom: 16px;
+    }
+
+    .card-title-zh {
+      font-family: var(--font-serif);
+      font-size: 1.6em;
+      font-weight: 700;
+      margin: 0 0 4px;
+      line-height: 1.3;
+    }
+
+    .card-title-en {
+      font-family: var(--font-en);
+      font-size: 1.1em;
+      font-weight: 400;
+      color: var(--text-secondary);
+      margin: 0 0 12px;
+      line-height: 1.4;
+    }
+
+    .card-summary-zh,
+    .card-summary-en,
+    .card-detail-zh,
+    .card-detail-en {
+      font-size: 0.95em;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .card-summary-en,
+    .card-detail-en {
+      color: var(--text-secondary);
+      font-family: var(--font-en);
+    }
+
+    .card-divider {
+      height: 1px;
+      background: var(--card-border);
+      margin: 16px 0;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .card-tags span {
+      padding: 3px 10px;
+      border-radius: 12px;
+      background: rgba(212, 168, 83, 0.08);
+      border: 1px solid rgba(212, 168, 83, 0.15);
+      font-size: 0.8em;
+      color: var(--gold);
+      font-family: var(--font-sans);
+    }
+
+    /* ============================================================
+       MINIMAP (bottom-right)
+       ============================================================ */
+    #minimap {
+      position: fixed;
+      bottom: 60px;
+      right: 16px;
+      width: 240px;
+      height: 72px;
+      background: rgba(13, 17, 23, 0.8);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      overflow: hidden;
+      pointer-events: auto;
+      z-index: 20;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    #minimap-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    #minimap-viewport {
+      position: absolute;
+      top: 0;
+      left: 0;
+      border: 1px solid var(--gold);
+      border-radius: 2px;
+      pointer-events: none;
+      background: rgba(212, 168, 83, 0.06);
+      box-shadow: 0 0 6px rgba(212, 168, 83, 0.15);
+    }
+
+    /* ============================================================
+       SCRUBBER (bottom bar)
+       ============================================================ */
+    #scrubber {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 36px;
+      background: rgba(13, 17, 23, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid var(--card-border);
+      pointer-events: auto;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+    }
+
+    .scrubber-track {
+      position: relative;
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      overflow: visible;
+    }
+
+    .scrubber-segments {
+      display: flex;
+      height: 100%;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .scrubber-seg {
+      flex: 1;
+    }
+
+    .scrubber-seg.cognitive {
+      background: var(--era-cognitive);
+    }
+
+    .scrubber-seg.agricultural {
+      background: var(--era-agricultural);
+    }
+
+    .scrubber-seg.unification {
+      background: var(--era-unification);
+    }
+
+    .scrubber-seg.scientific {
+      background: var(--era-scientific);
+    }
+
+    .scrubber-viewport-indicator {
+      position: absolute;
+      top: -2px;
+      height: calc(100% + 4px);
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+      pointer-events: none;
+    }
+
+    .scrubber-thumb {
+      position: absolute;
+      top: -4px;
+      width: 12px;
+      height: calc(100% + 8px);
+      background: var(--gold);
+      border-radius: 3px;
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(212, 168, 83, 0.4);
+      transition: box-shadow 0.25s ease;
+    }
+
+    .scrubber-thumb:hover {
+      box-shadow: 0 0 14px rgba(212, 168, 83, 0.7);
+    }
+
+    /* ============================================================
+       RESPONSIVE — Tablet / Small Desktop
+       ============================================================ */
+    @media (max-width: 768px) {
+      .era-tag {
+        padding: 6px 12px;
+        font-size: 0.8em;
+      }
+
+      .era-tag span {
+        font-size: 0.6em;
+      }
+
+      #detail-card {
+        padding: 20px;
+        max-width: 92vw;
+      }
+
+      .card-close {
+        top: -8px;
+        right: -8px;
+      }
+
+      .card-title-zh {
+        font-size: 1.3em;
+      }
+
+      .card-title-en {
+        font-size: 0.95em;
+      }
+
+      .card-summary-zh,
+      .card-summary-en,
+      .card-detail-zh,
+      .card-detail-en {
+        font-size: 0.85em;
+      }
+
+      #minimap {
+        bottom: 52px;
+        right: 8px;
+        width: 180px;
+        height: 56px;
+      }
+
+      #scrubber {
+        height: 32px;
+        padding: 0 10px;
+      }
+
+      .scrubber-track {
+        height: 6px;
+      }
+
+      .scrubber-thumb {
+        width: 10px;
+        top: -3px;
+        height: calc(100% + 6px);
+      }
+    }
+
+    /* ============================================================
+       RESPONSIVE — Mobile
+       ============================================================ */
+    @media (max-width: 480px) {
+      .era-tag {
+        padding: 5px 10px;
+        font-size: 0.72em;
+      }
+
+      .era-tag span {
+        display: none;
+      }
+
+      #detail-card {
+        padding: 16px;
+        border-radius: 12px;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .card-year {
+        font-size: 1em;
+      }
+
+      .card-title-zh {
+        font-size: 1.15em;
+      }
+
+      .card-title-en {
+        font-size: 0.85em;
+      }
+
+      #minimap {
+        bottom: 48px;
+        right: 4px;
+        width: 140px;
+        height: 42px;
+        border-radius: 6px;
+      }
+
+      .card-nav button {
+        padding: 4px 10px;
+        font-size: 0.8em;
+      }
+    }
+
+    /* ============================================================
+       ACCESSIBILITY — Reduced Motion
+       ============================================================ */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+
+      .era-tag {
+        transition: none;
+      }
+
+      #detail-card {
+        transition: none;
+      }
+
+      .scrubber-thumb {
+        transition: none;
+      }
+    }
+
+    /* ============================================================
+       SCROLLBAR STYLING
+       ============================================================ */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(212, 168, 83, 0.25);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(212, 168, 83, 0.45);
+    }
+
+    /* ============================================================
+       SELECTION STYLING
+       ============================================================ */
+    ::selection {
+      background: rgba(212, 168, 83, 0.3);
+      color: var(--star-white);
+    }
+  </style>
+</head>
+<body>
+  <!-- Starfield canvas — JavaScript will render particles here -->
+  <canvas id="starfield"></canvas>
+
+  <!-- Overlay: all UI elements live here -->
+  <div id="overlay">
+
+    <!-- Era label buttons across the top -->
+    <div id="era-labels">
+      <button class="era-tag" data-era="cognitive">
+        认知革命<span>Cognitive Rev.</span>
+      </button>
+      <button class="era-tag" data-era="agricultural">
+        农业革命<span>Agricultural Rev.</span>
+      </button>
+      <button class="era-tag" data-era="unification">
+        融合统一<span>Unification</span>
+      </button>
+      <button class="era-tag" data-era="scientific">
+        科学革命<span>Scientific Rev.</span>
+      </button>
+    </div>
+
+    <!-- Detail card (hidden by default, shown when a node is clicked) -->
+    <div id="detail-card" class="hidden">
+      <div class="card-inner">
+        <button class="card-close" aria-label="Close">&times;</button>
+        <div class="card-nav">
+          <button class="card-prev" aria-label="Previous">←</button>
+          <button class="card-next" aria-label="Next">→</button>
+        </div>
+        <span class="card-era-tag"></span>
+        <div class="card-year"></div>
+        <div class="card-year-en"></div>
+        <h2 class="card-title-zh"></h2>
+        <h3 class="card-title-en"></h3>
+        <p class="card-summary-zh"></p>
+        <p class="card-summary-en"></p>
+        <div class="card-divider"></div>
+        <div class="card-detail-zh"></div>
+        <div class="card-detail-en"></div>
+        <div class="card-tags"></div>
+      </div>
+    </div>
+
+    <!-- Minimap (bottom-right corner) -->
+    <div id="minimap">
+      <canvas id="minimap-canvas" width="240" height="72"></canvas>
+      <div id="minimap-viewport"></div>
+    </div>
+
+    <!-- Scrubber (bottom bar) -->
+    <div id="scrubber">
+      <div class="scrubber-track">
+        <div class="scrubber-segments">
+          <div class="scrubber-seg cognitive"></div>
+          <div class="scrubber-seg agricultural"></div>
+          <div class="scrubber-seg unification"></div>
+          <div class="scrubber-seg scientific"></div>
+        </div>
+        <div class="scrubber-viewport-indicator"></div>
+        <div class="scrubber-thumb"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+// ============================================================
+// SAPIENS TIMELINE — Complete Engine
+// ============================================================
+
+(function() {
+  'use strict';
+  
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  const css = (prop) => getComputedStyle(document.documentElement).getPropertyValue(prop).trim();
+  
+  // --- State ---
+  let width, height, cw, ch;  // viewport and full canvas
+  let animationId;
+  let time = 0;
+  let starsFar = [], starsMid = [], starsNear = [];
+  let timelineNodes = [];
+  let timelineLoaded = false;
+  
+  // Timeline spatial config
+  const TIME_MIN = -300000;
+  const TIME_MAX = 2025;
+  const ERA_COLORS = ['cognitive','agricultural','unification','scientific'];
+  const ERA_NAMES_ZH = { cognitive: '认知革命', agricultural: '农业革命', unification: '融合统一', scientific: '科学革命' };
+  
+  // Rendering config
+  let zoom = 1.0;
+  let panX = 0, panY = 0; // in canvas coordinates
+  let targetZoom = 1.0, targetPanX = 0, targetPanY = 0;
+  let isEasing = false;
+  const EASE_SPEED = 0.12;
+  
+  // --- Config ---
+  const FAR_COUNT = 400;
+  const MID_COUNT = 200;
+  const NEAR_COUNT = 50;
+  
+  // --- Helpers ---
+  function rand(min, max) { return Math.random() * (max - min) + min; }
+  
+  // Convert year to X coordinate on the full canvas
+  function yearToX(year) {
+    const t = (year - TIME_MIN) / (TIME_MAX - TIME_MIN);
+    return cw * 0.1 + t * cw * 0.8; // 10% padding on each side
+  }
+  
+  // Get pseudo-random Y offset based on node id (deterministic)
+  function nodeYOffset(id) {
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+      hash = ((hash << 5) - hash) + id.charCodeAt(i);
+      hash |= 0;
+    }
+    return (Math.abs(hash) % 100) / 100;
+  }
+  
+  // --- Star factories ---
+  function createFarStar() {
+    return {
+      x: Math.random() * cw,
+      y: Math.random() * ch,
+      r: rand(0.4, 1.2),
+      brightness: rand(0.3, 1.0)
+    };
+  }
+  
+  function createMidStar() {
+    return {
+      x: Math.random() * cw,
+      y: Math.random() * ch,
+      r: rand(0.8, 2.0),
+      brightness: rand(0.4, 1.0),
+      phase: rand(0, Math.PI * 2),
+      twinkleSpeed: rand(0.003, 0.012),
+      clusterGroup: Math.floor(rand(0, 8))
+    };
+  }
+  
+  function createNearStar() {
+    return {
+      x: Math.random() * cw,
+      y: Math.random() * ch,
+      r: rand(1.5, 3.5),
+      brightness: rand(0.5, 0.9),
+      vx: rand(-0.06, 0.06),
+      vy: rand(-0.06, 0.06),
+      hue: Math.random() < 0.3 ? css('--gold') : css('--star-white')
+    };
+  }
+  
+  // --- Initialize stars ---
+  function initStars() {
+    starsFar = Array.from({ length: FAR_COUNT }, createFarStar);
+    starsMid = Array.from({ length: MID_COUNT }, createMidStar);
+    starsNear = Array.from({ length: NEAR_COUNT }, createNearStar);
+  }
+  
+  // --- Timeline data (embedded for file:// compatibility) ---
+  const TIMELINE_DATA = [
+  {
+    "id": "homo-sapiens-emergence",
+    "year": -300000,
+    "yearDisplay": "约 30 万年前",
+    "yearDisplayEn": "~300,000 BCE",
+    "era": "cognitive",
+    "titleZh": "智人出现",
+    "titleEn": "Emergence of Homo Sapiens",
+    "summaryZh": "智人（Homo sapiens）在东非演化出现，最初只是众多人类物种中的一种，生活在非洲大陆上。",
+    "summaryEn": "Homo sapiens evolved in East Africa, initially just one among several human species inhabiting the African continent.",
+    "detailZh": "大约30万年前，智人在东非的草原与森林交界地带开始出现。此时的智人并不特殊——他们拥有较大的大脑，使用简单的石器，与尼安德特人、直立人、丹尼索瓦人等至少六种其他人类物种共存。早期智人的脑容量与现代人相当，但他们并未立即展现出任何明显的优势。事实上，在最初的二十多万年里，智人一直处于食物链的中层位置，猎杀小动物并采集植物，同时还要躲避大型掠食者。直到认知革命发生之前，智人的生活方式与其他人属物种并无本质区别，也没有证据表明他们拥有艺术、宗教或复杂的语言能力。",
+    "detailEn": "Around 300,000 years ago, Homo sapiens first appeared in the borderlands between grasslands and forests in East Africa. At this point, Sapiens were nothing special — they had relatively large brains and used simple stone tools, coexisting with at least six other human species including Neanderthals, Homo erectus, and Denisovans. Early Sapiens had brain volumes comparable to modern humans, yet they did not immediately display any obvious advantage. In fact, for the first 200,000-plus years, Sapiens occupied a middle position in the food chain, hunting small game and gathering plants while avoiding large predators. Before the Cognitive Revolution, Sapiens' way of life was not fundamentally different from other hominin species, and there is no evidence they possessed art, religion, or complex linguistic capabilities.",
+    "significance": "key",
+    "tags": ["人类起源", "进化", "东非", "human-origins", "evolution", "east-africa"]
+  },
+  {
+    "id": "cognitive-revolution",
+    "year": -70000,
+    "yearDisplay": "约 7 万年前",
+    "yearDisplayEn": "~70,000 BCE",
+    "era": "cognitive",
+    "titleZh": "认知革命",
+    "titleEn": "The Cognitive Revolution",
+    "summaryZh": "智人发展出全新的思维方式与语言能力，能够讨论虚构事物，从而开启了大规模合作的新纪元。",
+    "summaryEn": "Sapiens developed new ways of thinking and communicating, gaining the ability to discuss fictional entities, which enabled large-scale cooperation.",
+    "detailZh": "大约七万年前，智人经历了一场深刻的认知变革。哈拉里认为，这一变革可能源于某种偶然的基因突变，改变了智人大脑内部的连接方式，使他们能够用全新的方式进行思考与交流。最关键的变化是智人语言具备了描述不存在之事物的能力——虚构故事。从此，智人可以谈论部落的守护神、传说中的祖先、共同的未来愿景。正是这种「虚构」能力，使得成千上万甚至数百万互不相识的陌生人能够围绕共同的神话、信仰和想象秩序进行大规模合作。法律、国家、公司、货币、人权——所有这些在自然界中并不存在的实体，都是认知革命赋予人类的虚构能力。哈拉里指出，智人之所以能够征服世界，不是因为他们个体更聪明或更强壮，而是因为他们能够灵活地进行大规模合作。",
+    "detailEn": "Around 70,000 years ago, Sapiens underwent a profound cognitive transformation. Harari argues this may have been triggered by an accidental genetic mutation that altered the internal wiring of Sapiens' brains, enabling them to think and communicate in entirely new ways. The most crucial change was that Sapiens language acquired the ability to describe things that do not exist — to tell fictional stories. From this point, Sapiens could discuss tribal guardian spirits, mythical ancestors, and shared visions of the future. It was precisely this capacity for 'fiction' that allowed thousands or even millions of strangers to cooperate on a large scale around shared myths, beliefs, and imagined orders. Laws, states, corporations, money, human rights — all these entities that exist nowhere in nature are fictional creations granted to humanity by the Cognitive Revolution. Harari emphasizes that Sapiens conquered the world not because they were individually smarter or stronger, but because they could cooperate flexibly on a massive scale.",
+    "significance": "key",
+    "tags": ["认知革命", "语言", "虚构", "合作", "cognitive-revolution", "language", "fiction", "cooperation"]
+  },
+  {
+    "id": "sapiens-out-of-africa",
+    "year": -70000,
+    "yearDisplay": "约 7 万年前",
+    "yearDisplayEn": "~70,000 BCE",
+    "era": "cognitive",
+    "titleZh": "智人走出非洲",
+    "titleEn": "Sapiens Spread Beyond Africa",
+    "summaryZh": "经历了认知革命的智人开始大规模离开非洲，向阿拉伯半岛、亚洲和欧洲扩散，开启了全球迁徙的征程。",
+    "summaryEn": "Following the Cognitive Revolution, Sapiens began migrating out of Africa in large numbers, spreading into the Arabian Peninsula, Asia, and Europe.",
+    "detailZh": "在认知革命的推动下，智人开始分批走出非洲大陆。他们先是进入阿拉伯半岛，然后迅速向欧亚大陆各处扩散。这不是人类第一次走出非洲——直立人早在一百多万年前就已经到达了亚洲和欧洲，并演化成了尼安德特人等多种本地人类物种。但这次智人的迁徙具有完全不同的性质：他们带着认知革命赋予的全新能力——复杂的语言、先进的社会合作技巧以及虚构故事的力量。当智人抵达新的土地时，他们遇到了已经在那里生活了数十万年的其他人类物种。哈拉里强调，智人的迁徙并非一次性的大规模移民，而是在数万年间一波又一波地推进，每一次推进都给当地生态系统和其他人类物种带来了深远的影响。",
+    "detailEn": "Spurred by the Cognitive Revolution, Sapiens began leaving the African continent in waves. They first entered the Arabian Peninsula and then rapidly spread across Eurasia. This was not the first human exodus from Africa — Homo erectus had reached Asia and Europe over a million years earlier and had evolved into local human species such as Neanderthals. But this Sapiens migration was qualitatively different: they carried the new abilities granted by the Cognitive Revolution — complex language, advanced social cooperation skills, and the power of fictional stories. When Sapiens arrived in new lands, they encountered other human species that had lived there for hundreds of thousands of years. Harari emphasizes that the Sapiens migration was not a single mass event but a series of waves advancing over tens of thousands of years, each wave bringing profound consequences for local ecosystems and other human species.",
+    "significance": "major",
+    "tags": ["迁徙", "走出非洲", "扩散", "migration", "out-of-africa", "dispersal"]
+  },
+  {
+    "id": "sapiens-arrive-australia",
+    "year": -45000,
+    "yearDisplay": "约 4.5 万年前",
+    "yearDisplayEn": "~45,000 BCE",
+    "era": "cognitive",
+    "titleZh": "智人抵达澳大利亚",
+    "titleEn": "Sapiens Reach Australia",
+    "summaryZh": "智人首次踏上一块此前从未有人类涉足的大陆——澳大利亚，标志着人类第一次大规模海洋迁徙。",
+    "summaryEn": "Sapiens first set foot on a continent never before touched by any human species — Australia — marking humanity's first major seafaring migration.",
+    "detailZh": "大约四万五千年前，智人完成了人类历史上最令人惊叹的迁徙之一：他们跨越了宽阔的海洋，抵达了澳大利亚。这需要相当的航海技术，因为即使在冰河时期海平面较低时，从东南亚到澳大利亚也需要跨越至少近百公里的开阔水域。当时的智人已经掌握了建造简易船只的技术。当他们踏上澳大利亚时，这片大陆上生活着许多独特的大型有袋动物——双门齿兽、巨型袋鼠、袋狮。在智人抵达后的几千年内，澳大利亚90%以上的大型动物物种全部灭绝。哈拉里指出，这不仅仅是气候变化的结果——这些动物在与智人共存了数百万年的非洲和亚洲都存活了下来，却在新来者面前迅速消失了。这是人类第一次展现其改变整个大陆生态系统面貌的巨大力量。",
+    "detailEn": "Around 45,000 years ago, Sapiens completed one of the most remarkable migrations in human history: they crossed vast expanses of ocean to reach Australia. This required considerable seafaring skills, because even during the Ice Age when sea levels were lower, the journey from Southeast Asia to Australia required crossing at least a hundred kilometers of open water. By this time, Sapiens had mastered the technology of building simple watercraft. When they set foot on Australia, the continent was home to many unique large marsupials — diprotodons, giant kangaroos, and marsupial lions. Within a few thousand years of Sapiens' arrival, over 90% of Australia's large animal species went extinct. Harari points out that this cannot be attributed solely to climate change — these animals had survived alongside humans for millions of years in Africa and Asia, yet vanished rapidly in the face of the newcomers. This was humanity's first demonstration of its immense power to transform the ecology of an entire continent.",
+    "significance": "major",
+    "tags": ["澳大利亚", "海洋迁徙", "生态灭绝", "australia", "seafaring", "megafauna"]
+  },
+  {
+    "id": "megafauna-extinction",
+    "year": -40000,
+    "yearDisplay": "约 4 万年前",
+    "yearDisplayEn": "~40,000 BCE",
+    "era": "cognitive",
+    "titleZh": "全球大型动物灭绝",
+    "titleEn": "Global Megafauna Extinction",
+    "summaryZh": "随着智人在全球范围内的扩散，各地的大型动物相继灭绝，形成了一场全球性的生态灾难。",
+    "summaryEn": "As Sapiens spread across the globe, large animals disappeared from every continent, creating a worldwide ecological catastrophe.",
+    "detailZh": "智人迁徙到哪里，哪里的巨型动物就相继消失。在澳大利亚，双门齿兽和巨型蜥蜴消失了；在美洲，剑齿虎、猛犸象、巨地懒在智人抵达后迅速灭绝；在新西兰，恐鸟等大型鸟类在毛利人到达后崩溃。哈拉里将这场全球性的灭绝事件称为人类历史上的第一次生态灾难。他驳斥了单纯的「气候变化说」——因为在过去千万年间，地球经历了多次冰期和间冰期的交替，但大型动物都能存活下来。唯独在智人出现后，它们才开始大批灭绝。最有力的证据是：海洋中的大型动物在智人扩散期间几乎没有受到影响，而陆地上的大动物却无一幸免。这清楚地表明，智人狩猎和生态改造才是大灭绝的真正原因。",
+    "detailEn": "Wherever Sapiens migrated, giant animals subsequently vanished. In Australia, diprotodons and giant lizards disappeared. In the Americas, saber-toothed cats, mammoths, and giant ground sloths went extinct rapidly after Sapiens arrived. In New Zealand, giant birds like the moa collapsed after the Māori reached the islands. Harari describes this global extinction event as humanity's first ecological disaster. He rejects the simplistic 'climate change hypothesis' — because over the preceding tens of millions of years, the Earth experienced multiple glacial and interglacial cycles, and large animals survived them all. Only after Sapiens appeared did they begin dying out en masse. The most compelling evidence: large marine animals were hardly affected during the Sapiens dispersal, while terrestrial megafauna were devastated everywhere. This clearly indicates that Sapiens hunting and ecological modification, not climate, were the true cause of the mass extinctions.",
+    "significance": "major",
+    "tags": ["灭绝", "大型动物", "生态破坏", "extinction", "megafauna", "ecology"]
+  },
+  {
+    "id": "neanderthal-extinction",
+    "year": -30000,
+    "yearDisplay": "约 3 万年前",
+    "yearDisplayEn": "~30,000 BCE",
+    "era": "cognitive",
+    "titleZh": "尼安德特人灭绝",
+    "titleEn": "Extinction of Neanderthals",
+    "summaryZh": "与智人共存了数万年的尼安德特人最终走向灭绝，标志着地球上最后一个人属近亲物种的消失。",
+    "summaryEn": "The Neanderthals, who had coexisted with Sapiens for tens of thousands of years, finally went extinct, marking the disappearance of Earth's last closely related human species.",
+    "detailZh": "尼安德特人在欧洲和西亚地区生活了数十万年，他们比智人更强壮，脑容量甚至更大，能够制造工具、使用火、进行简单的狩猎协作。但当智人抵达他们的领地后，仅仅几万年时间，尼安德特人就彻底消失了。关于他们灭绝的原因，学术界存在多种理论。哈拉里倾向于认为，智人的优势不在于个体能力，而在于社会组织：智人能够形成更大的群体，通过共享的虚构故事建立信任网络，从而在资源竞争中碾压人数较少的尼安德特人群落。此外，智人可能带来了尼安德特人没有抵抗力的疾病，也可能发生了直接的暴力冲突。基因研究表明，智人与尼安德特人有过小规模的混血——现代欧亚人类基因组中仍含有约1%到4%的尼安德特人DNA。但无论如何，作为一个独立物种的尼安德特人最终消亡了，智人成为了地球上唯一幸存的人类物种。",
+    "detailEn": "Neanderthals had lived in Europe and western Asia for hundreds of thousands of years. They were stronger than Sapiens, had equally large or even larger brains, and could make tools, use fire, and engage in cooperative hunting. Yet within just a few tens of thousands of years after Sapiens arrived in their territories, the Neanderthals disappeared completely. Regarding the cause of their extinction, several theories exist. Harari leans toward the view that Sapiens' advantage lay not in individual ability but in social organization: Sapiens could form larger groups and build trust networks through shared fictional stories, thereby overwhelming the smaller Neanderthal bands in ecological competition. Additionally, Sapiens may have brought diseases to which Neanderthals had no resistance, and direct violent conflict may also have occurred. Genetic studies reveal that Sapiens and Neanderthals interbred to a limited extent — modern Eurasian human genomes still contain roughly 1% to 4% Neanderthal DNA. But in any case, Neanderthals as a distinct species ultimately perished, and Sapiens became the sole surviving human species on Earth.",
+    "significance": "major",
+    "tags": ["尼安德特人", "灭绝", "人类物种", "neanderthal", "extinction", "human-species"]
+  },
+  {
+    "id": "sapiens-reach-americas",
+    "year": -16000,
+    "yearDisplay": "约 1.6 万年前",
+    "yearDisplayEn": "~16,000 BCE",
+    "era": "cognitive",
+    "titleZh": "智人抵达美洲",
+    "titleEn": "Sapiens Reach the Americas",
+    "summaryZh": "智人通过白令陆桥从西伯利亚进入美洲大陆，随后迅速南下，在短短两千年内遍布整个美洲。",
+    "summaryEn": "Sapiens crossed the Bering land bridge from Siberia into the Americas, then rapidly spread southward, populating the entire hemisphere within just two millennia.",
+    "detailZh": "在末次冰期，由于大量海水被锁定为冰川，海平面下降使西伯利亚和阿拉斯加之间出现了宽阔的白令陆桥。大约一万六千年前，一些追逐猎物的智人狩猎群体偶然踏上了这片连接欧亚与美洲的土地，并逐渐向东和向南推进。一旦越过加拿大冰盖的缺口，智人便如洪水般涌入这片物产丰富、从未有人类涉足的广袤大陆。在短短不到两千年内，他们就抵达了南美洲的南端。美洲拥有极其丰富的巨型动物群落——猛犸象、乳齿象、剑齿虎、巨型地懒、巨型犰狳。但在智人到来后的几千年中，北美洲47个属的大型哺乳动物中有34个属灭绝了，南美洲60个属中有50个消失了。哈拉里将此视为「人类洪水假说」的最有力证据之一。",
+    "detailEn": "During the last Ice Age, with vast amounts of seawater locked up in glaciers, falling sea levels exposed a broad land bridge — Beringia — connecting Siberia and Alaska. Around 16,000 years ago, some Sapiens hunting bands chasing game accidentally stepped onto this land connecting Eurasia with the Americas, and gradually pushed eastward and southward. Once they breached the gap in the Canadian ice sheets, Sapiens flooded into a vast, resource-rich continent never before touched by any human species. Within less than two thousand years, they reached the southern tip of South America. The Americas harbored an extraordinarily rich community of megafauna — mammoths, mastodons, saber-toothed cats, giant ground sloths, and glyptodonts. But within a few thousand years of Sapiens' arrival, 34 out of 47 genera of North American large mammals went extinct, and 50 out of 60 genera in South America disappeared. Harari views this as among the strongest evidence for the 'human blitzkrieg hypothesis.'",
+    "significance": "major",
+    "tags": ["美洲", "迁徙", "白令陆桥", "americas", "migration", "beringia"]
+  },
+  {
+    "id": "hunter-gatherer-peak",
+    "year": -15000,
+    "yearDisplay": "约 1.5 万年前",
+    "yearDisplayEn": "~15,000 BCE",
+    "era": "cognitive",
+    "titleZh": "狩猎采集社会巅峰",
+    "titleEn": "Peak of Hunter-Gatherer Societies",
+    "summaryZh": "农业革命前夕，智人的狩猎采集社会达到了巅峰状态，拥有丰富的饮食、多样的技能和相对较短的工作时间。",
+    "summaryEn": "On the eve of the Agricultural Revolution, Sapiens hunter-gatherer societies reached their peak, enjoying a varied diet, diverse skills, and relatively short working hours.",
+    "detailZh": "在农业革命之前的数千年里，智人的狩猎采集生活方式达到了一个黄金时期。此时的人类已经遍布除南极洲外的所有大陆，对环境有着极其深刻的了解。哈拉里描绘的狩猎采集者并非挣扎在饥饿边缘的可怜人——他们享受着多样化的饮食，每天食用的植物和动物种类远超后来的农民。人类学家对现代狩猎采集部落的研究表明，他们平均每天只需工作三到六个小时来获取食物，剩余时间用于社交、游戏和休息。他们很少遭受饥荒和传染病之苦，因为小型游动群体的密度不足以支持传染病的传播，而饮食多样性也降低了单一作物歉收带来的风险。哈拉里甚至提出了一个颇具争议的观点：农业革命之前的狩猎采集者可能比早期农民生活得更好。他将农业革命称为「历史上最大的骗局」——人类驯化了小麦和水稻，但从个体幸福的角度看，反而是植物「驯化」了人类。",
+    "detailEn": "For thousands of years before the Agricultural Revolution, the Sapiens hunter-gatherer lifestyle reached a golden age. By this time, humans had populated every continent except Antarctica and possessed an extraordinarily deep knowledge of their environments. The hunter-gatherers Harari depicts were not pathetic creatures teetering on the edge of starvation — they enjoyed a diverse diet, consuming far more plant and animal species daily than later farmers. Anthropological studies of modern hunter-gatherer tribes suggest they worked an average of only three to six hours per day to procure food, with the remaining time devoted to socializing, playing, and resting. They rarely suffered from famine or infectious diseases, because small, mobile bands lacked the population density needed for epidemics to spread, and dietary diversity reduced the risk associated with any single food source failing. Harari even advances the provocative argument that pre-Agricultural Revolution hunter-gatherers may have lived better than early farmers. He calls the Agricultural Revolution 'history's biggest fraud' — humans domesticated wheat and rice, but from the perspective of individual well-being, it was the plants that 'domesticated' humans.",
+    "significance": "minor",
+    "tags": ["狩猎采集", "饮食", "工作", "hunter-gatherer", "diet", "labor"]
+  },
+  {
+    "id": "agricultural-revolution",
+    "year": -9500,
+    "yearDisplay": "约 9500 BCE",
+    "yearDisplayEn": "~9,500 BCE",
+    "era": "agricultural",
+    "titleZh": "农业革命开始",
+    "titleEn": "The Agricultural Revolution Begins",
+    "summaryZh": "人类开始驯化植物和动物，从狩猎采集转向农耕定居，这一转变被哈拉里称为「历史上最大的骗局」。",
+    "summaryEn": "Humans began domesticating plants and animals, shifting from foraging to farming — a transformation Harari calls 'history's biggest fraud.'",
+    "detailZh": "大约一万年前，在中东的「肥沃新月地带」、中国的长江流域和中美洲等地，人类几乎同时开始了对植物和动物的驯化。小麦、水稻、玉米、马铃薯等作物被从野生品种中选育出来，山羊、绵羊、猪和牛被圈养。表面上，这是人类智慧的伟大胜利——我们学会了如何生产更多的食物，可以养活更多的人口。但哈拉里从完全不同的角度审视这一变革：农业革命对绝大多数个体来说是一场灾难。农民的工作时间比狩猎采集者更长——从日出到日落的田间劳作取代了每天几小时的觅食。他们的饮食变得单一——依赖少数几种主要作物，导致营养不良和饥荒风险。人口密度的增加催生了传染病。腰椎间盘突出、关节炎和疝气成为新的常见疾病。然而，从物种演化的角度看，农业革命让智人的总人口数量爆炸式增长，DNA拷贝数急剧增加。农业革命是一场「演化成功的骗局」——物种成功了，个体却受苦了。",
+    "detailEn": "Around 10,000 years ago, in the Fertile Crescent of the Middle East, the Yangtze River valley in China, and Mesoamerica, humans began domesticating plants and animals almost simultaneously. Wheat, rice, maize, and potatoes were bred from wild varieties, while goats, sheep, pigs, and cattle were penned and managed. On the surface, this appeared to be a great triumph of human ingenuity — we learned how to produce more food and support larger populations. But Harari examines this transformation from a very different angle: the Agricultural Revolution was a disaster for the vast majority of individuals. Farmers worked longer hours than foragers — dawn-to-dusk field labor replaced a few hours of daily foraging. Their diets became monotonous — relying on a handful of staple crops, leading to malnutrition and famine vulnerability. Increased population density spawned infectious diseases. Slipped discs, arthritis, and hernias became common new ailments. Yet from an evolutionary perspective, the Agricultural Revolution caused the total Sapiens population to explode, with DNA copies multiplying dramatically. It was an 'evolutionary success fraud' — the species succeeded, but individuals suffered.",
+    "significance": "key",
+    "tags": ["农业革命", "驯化", "定居", "agriculture", "domestication", "sedentism"]
+  },
+  {
+    "id": "permanent-settlements",
+    "year": -9000,
+    "yearDisplay": "约 9000 BCE",
+    "yearDisplayEn": "~9,000 BCE",
+    "era": "agricultural",
+    "titleZh": "永久定居点出现",
+    "titleEn": "First Permanent Settlements",
+    "summaryZh": "随着农业的发展，人类开始建造永久性的村庄和房屋，彻底改变了人类的空间组织方式和生活方式。",
+    "summaryEn": "With the development of agriculture, humans began constructing permanent villages and houses, fundamentally transforming spatial organization and daily life.",
+    "detailZh": "农业革命带来的最深远的变化之一，是人类从流动的狩猎采集生活转向了固定的定居生活。在今天的土耳其东南部，考古学家发现了距今约一万一千年的哥贝克力石阵——一个由巨大T形石柱组成的仪式建筑群，由狩猎采集者在农业完全确立之前就已经开始建造。这个遗址颠覆了传统认知：或许不是农业带来了定居和宗教建筑，而是先有了共同的宗教信念和仪式场所，才促使人们聚集定居，进而推动了农业的发展。随着定居点的扩大，人类开始积累私有财产——房屋、田地、工具和储存的粮食。私人财产的出现催生了新的社会关系：继承制度、土地所有权、盗窃与保护。村庄变成了城镇，城镇演化为城市。人们与同一片土地建立了前所未有的深厚纽带，这一纽带既带来了安全感和归属感，也带来了劳作之苦和对未知世界的恐惧。",
+    "detailEn": "One of the most profound changes wrought by the Agricultural Revolution was the shift from a mobile foraging lifestyle to settled village life. In southeastern Turkey, archaeologists discovered Göbekli Tepe — a ritual complex of massive T-shaped stone pillars dating back roughly 11,000 years, built by hunter-gatherers before agriculture was fully established. This site overturned conventional thinking: perhaps it was not agriculture that gave rise to settlement and religious architecture, but rather shared religious beliefs and ritual sites that drew people together, which in turn spurred the development of agriculture. As settlements grew, humans began accumulating private property — houses, fields, tools, and stored grain. The emergence of private property gave birth to new social relationships: inheritance systems, land ownership, theft, and protection. Villages became towns, and towns evolved into cities. People forged an unprecedentedly deep bond with a specific patch of land — a bond that brought both security and belonging, but also exhausting labor and fear of the unknown.",
+    "significance": "major",
+    "tags": ["定居", "村庄", "私有财产", "settlement", "village", "property"]
+  },
+  {
+    "id": "animal-domestication",
+    "year": -9000,
+    "yearDisplay": "约 9000 BCE",
+    "yearDisplayEn": "~9,000 BCE",
+    "era": "agricultural",
+    "titleZh": "动物驯化",
+    "titleEn": "Domestication of Animals",
+    "summaryZh": "人类开始驯化山羊、绵羊、猪和牛等动物，为农业社会提供稳定的肉、奶、皮毛和劳动力来源。",
+    "summaryEn": "Humans began domesticating goats, sheep, pigs, and cattle, providing stable sources of meat, milk, hides, and labor for agricultural societies.",
+    "detailZh": "与植物驯化同步进行的，是动物的驯化过程。最早的驯化动物是狗——早在农业革命之前数千年，狼就已经被驯化为人类的狩猎伙伴。但大规模的动物驯化则始于农业革命时期。山羊和绵羊在约一万年前的中东地区被驯化，猪在中国和安纳托利亚被分别独立驯化，牛则在稍晚时候在多个地区被驯化。哈拉里指出，从被驯化动物的角度来看，这是一场「演化成功的悲剧」：从DNA的复制数量来说，鸡、牛、猪成为了地球上最成功的哺乳动物和鸟类物种——它们的种群数量远远超过野生近亲。但这种演化成功是以巨大的个体痛苦为代价的。驯化的动物被阉割、关押、人工选择，按照人类的需求被改造成「生物学上的畸形」——现代乳牛的乳房大到几乎无法行走，肉鸡的体重增长之快使其双腿无法支撑自身。",
+    "detailEn": "Concurrent with plant domestication was the domestication of animals. The earliest domesticated animal was the dog — wolves had been domesticated as hunting companions thousands of years before the Agricultural Revolution. But large-scale animal domestication began during the Agricultural Revolution proper. Goats and sheep were domesticated in the Middle East around 10,000 years ago, pigs independently in China and Anatolia, and cattle somewhat later in multiple regions. Harari notes that from the perspective of domesticated animals, this was a 'tragedy of evolutionary success': measured by DNA copy numbers, chickens, cattle, and pigs became among the most successful mammalian and avian species on Earth — their populations vastly outnumber their wild relatives. But this evolutionary success came at the cost of immense individual suffering. Domesticated animals were castrated, confined, and selectively bred, reshaped into 'biological deformities' according to human needs — modern dairy cows have udders so large they can barely walk, and broiler chickens gain weight so rapidly their legs cannot support their bodies.",
+    "significance": "major",
+    "tags": ["动物驯化", "畜牧业", "演化", "domestication", "livestock", "evolution"]
+  },
+  {
+    "id": "writing-emerges",
+    "year": -3400,
+    "yearDisplay": "约 3400 BCE",
+    "yearDisplayEn": "~3,400 BCE",
+    "era": "agricultural",
+    "titleZh": "文字诞生",
+    "titleEn": "Invention of Writing",
+    "summaryZh": "苏美尔人在美索不达米亚发明了最早的楔形文字，主要用于记录税收和商业交易，标志着信息存储技术的革命。",
+    "summaryEn": "The Sumerians in Mesopotamia invented the earliest cuneiform script, primarily for recording taxes and commercial transactions, marking a revolution in information storage.",
+    "detailZh": "大约公元前3400年，在美索不达米亚南部的苏美尔地区，人类发明了文字。最早的楔形文字并非用于记录诗歌或哲学——它起初是一种行政工具。随着城市和国家的发展，统治者需要记录谁交了税、仓库里有多少粮食、欠了多少债务。最初，苏美尔人使用黏土板，用削尖的芦苇杆在上面刻划符号。每个符号代表一个具体的物品或数量。逐渐地，这些符号演化为能够表示抽象概念和语音的书写系统。哈拉里将文字称为「脑外记忆的革命」——文字使人类能够将思想永久地存储在体外，超越了人类大脑的生物学限制。从此，法律可以写下来并长期保持稳定，知识可以跨世代积累而不被遗忘，复杂的官僚体系得以运转。文字的出现不仅是记录方式的改变，更是人类思维方式的深刻变革。它使人类从生物学的慢速演化进入了文化的高速演进时代。",
+    "detailEn": "Around 3400 BCE, in the Sumerian region of southern Mesopotamia, humans invented writing. The earliest cuneiform script was not used to record poetry or philosophy — it began as an administrative tool. As cities and states grew, rulers needed to record who had paid taxes, how much grain was in the warehouse, and what debts were owed. Initially, the Sumerians used clay tablets, scratching symbols into them with sharpened reed styluses. Each symbol represented a specific object or quantity. Gradually, these symbols evolved into a writing system capable of representing abstract concepts and phonetic sounds. Harari calls writing 'a revolution in extra-cerebral memory' — it enabled humans to permanently store thoughts outside the body, transcending the biological limitations of the human brain. From this point, laws could be written down and remain stable across long periods, knowledge could accumulate across generations without being forgotten, and complex bureaucratic systems could function. The emergence of writing was not merely a change in recording methods — it was a profound transformation in human cognition itself. It propelled humanity from the slow pace of biological evolution into an era of high-speed cultural evolution.",
+    "significance": "key",
+    "tags": ["文字", "楔形文字", "苏美尔", "writing", "cuneiform", "sumerian"]
+  },
+  {
+    "id": "sumerian-cities",
+    "year": -3500,
+    "yearDisplay": "约 3500 BCE",
+    "yearDisplayEn": "~3,500 BCE",
+    "era": "agricultural",
+    "titleZh": "苏美尔城邦兴起",
+    "titleEn": "Rise of Sumerian City-States",
+    "summaryZh": "美索不达米亚南部出现了最早的城市文明——苏美尔城邦，人类首次生活在以城市为中心的大型政治单位中。",
+    "summaryEn": "The earliest urban civilization — the Sumerian city-states — emerged in southern Mesopotamia, with humans living in large city-centered political units for the first time.",
+    "detailZh": "约公元前3500年，在底格里斯河与幼发拉底河之间的肥沃平原上，苏美尔人建立了人类历史上最早的城市——乌鲁克、乌尔、拉格什和埃利都等。这些城市是人类迈向复杂社会的重要里程碑。每个苏美尔城邦都是一个独立的政治实体，拥有自己的保护神、统治者和法律体系。城市的中心是宏伟的神庙——塔庙（ziggurat），既是宗教场所也是经济管理中心。苏美尔人发展了灌溉农业，建造了运河和堤坝来控制河水，使美索不达米亚的农业产量远超其他地区。多余的食物养活了专职的神职人员、官僚、工匠和士兵，形成了复杂的社会分工。苏美尔城市是「想象秩序」的实体体现——成千上万的陌生人之所以能够和平共处并合作，是因为他们共享着对神灵、国王权威和法律正义的虚构信念。哈拉里指出，城市文明是人类虚构能力的最伟大展示。",
+    "detailEn": "Around 3500 BCE, on the fertile plains between the Tigris and Euphrates rivers, the Sumerians built humanity's earliest cities — Uruk, Ur, Lagash, and Eridu among them. These cities were crucial milestones in humanity's progress toward complex societies. Each Sumerian city-state was an independent political entity with its own patron deity, ruler, and legal system. At the center of each city stood a grand temple — the ziggurat — which served as both a religious site and an economic management center. The Sumerians developed irrigation agriculture, building canals and dikes to control the rivers, which allowed Mesopotamia's agricultural yields to far surpass those of other regions. The surplus food supported a class of full-time priests, bureaucrats, artisans, and soldiers, creating complex social divisions of labor. Sumerian cities were the physical embodiment of 'imagined orders' — thousands of strangers could coexist peacefully and cooperate because they shared fictional beliefs in gods, the authority of kings, and the justice of laws. Harari points out that urban civilization was the greatest demonstration of humanity's capacity for fiction.",
+    "significance": "major",
+    "tags": ["苏美尔", "城邦", "美索不达米亚", "sumerian", "city-state", "mesopotamia"]
+  },
+  {
+    "id": "social-hierarchy",
+    "year": -4000,
+    "yearDisplay": "约 4000 BCE",
+    "yearDisplayEn": "~4,000 BCE",
+    "era": "agricultural",
+    "titleZh": "阶级制度形成",
+    "titleEn": "Formation of Social Hierarchies",
+    "summaryZh": "农业社会产生了严格的阶级划分——贵族、平民、奴隶，以及基于性别、种族和种姓的持久不平等结构。",
+    "summaryEn": "Agricultural societies produced rigid class divisions — nobles, commoners, slaves — and durable structures of inequality based on gender, race, and caste.",
+    "detailZh": "狩猎采集社会虽然也有地位差异，但总体上相对平等，因为流动的生活方式限制了物质财富的积累。农业革命彻底改变了这一点。农田、粮仓和房屋都是不可移动的财产，财富开始以前所未有的规模集中。统治阶级——国王、祭司、贵族——通过控制剩余粮食和宣称神圣权力来维持其特权。哈拉里特别分析了三种持久的想象等级制度：性别等级——几乎所有农业社会都确立了男性对女性的统治地位，将女性排除在公共权力之外；种族等级——如美国的黑白种族隔离制度，用虚构的「生物学差异」来为剥削辩护；种姓等级——如印度的种姓制度，将社会分工与宗教净化观念绑定。哈拉里强调，所有这些等级制度都不是自然的，而是人类虚构的「想象秩序」，但它们一旦建立，就具有极强的自我维持能力，往往延续数千年。",
+    "detailEn": "While hunter-gatherer societies had status differences, they were generally relatively egalitarian because the mobile lifestyle limited the accumulation of material wealth. The Agricultural Revolution changed this completely. Fields, granaries, and houses were immovable property, and wealth began to concentrate on an unprecedented scale. Ruling classes — kings, priests, and nobles — maintained their privileges by controlling surplus food and claiming divine authority. Harari specifically analyzes three enduring imagined hierarchies: gender hierarchy — almost all agricultural societies established male dominance over females, excluding women from public power; racial hierarchy — such as the American system of racial segregation, which used fictional 'biological differences' to justify exploitation; and caste hierarchy — such as the Indian caste system, which bound the division of labor to religious notions of purity. Harari emphasizes that none of these hierarchies are natural — they are all human fictions, 'imagined orders' — yet once established, they possess extraordinary self-perpetuating power, often lasting for millennia.",
+    "significance": "major",
+    "tags": ["阶级", "不平等", "等级制度", "hierarchy", "inequality", "class"]
+  },
+  {
+    "id": "pyramids-built",
+    "year": -2500,
+    "yearDisplay": "约 2500 BCE",
+    "yearDisplayEn": "~2,500 BCE",
+    "era": "agricultural",
+    "titleZh": "金字塔建造",
+    "titleEn": "Construction of the Pyramids",
+    "summaryZh": "古埃及人建造了宏大的金字塔，展示了想象秩序如何动员成千上万人为一个虚构的来世信念付出巨大努力。",
+    "summaryEn": "The ancient Egyptians built the grand pyramids, demonstrating how imagined orders could mobilize thousands to expend enormous effort for a fictional belief in an afterlife.",
+    "detailZh": "公元前2500年左右，古埃及的法老们启动了人类历史上最宏伟的建筑项目之一——吉萨大金字塔。胡夫金字塔高达146米，使用了约230万块巨石，每块重达数吨，在没有现代机械的情况下被精准地堆砌成形。哈拉里认为，金字塔是想象秩序力量的终极象征。法老声称自己是荷鲁斯神的化身，死后将升入天国与众神同住，而参与建造金字塔的农民和工匠则相信，他们将因这项神圣的劳作而在来世获得奖赏。正是这种共享的虚构信念——而非仅仅是鞭子和锁链——动员了数万名工人几十年如一日地劳作。哈拉里将金字塔与现代社会的大型工程进行对比：今天的摩天大楼和航天项目同样是虚构信念的产物——对资本主义、民族国家或人类进步的信仰——只是我们不再用石块来表达这些信念，而改用钢铁、玻璃和代码。",
+    "detailEn": "Around 2500 BCE, the pharaohs of ancient Egypt launched one of the most ambitious building projects in human history — the Great Pyramids of Giza. The Pyramid of Khufu rose to 146 meters, using roughly 2.3 million stone blocks weighing several tons each, precisely stacked without modern machinery. Harari sees the pyramids as the ultimate symbol of the power of imagined orders. The pharaoh claimed to be the incarnation of the god Horus, destined to ascend to the heavens after death to dwell among the gods, while the peasants and artisans who built the pyramids believed they would be rewarded in the afterlife for their sacred labor. It was this shared fictional belief — not merely whips and chains — that mobilized tens of thousands of workers to toil for decades on end. Harari draws a parallel with large-scale modern projects: today's skyscrapers and space programs are likewise products of fictional beliefs — faith in capitalism, the nation-state, or human progress — except we now express these beliefs in steel, glass, and code rather than stone.",
+    "significance": "major",
+    "tags": ["金字塔", "古埃及", "想象秩序", "pyramids", "egypt", "imagined-order"]
+  },
+  {
+    "id": "money-invented",
+    "year": -2500,
+    "yearDisplay": "约 2500 BCE",
+    "yearDisplayEn": "~2,500 BCE",
+    "era": "agricultural",
+    "titleZh": "货币诞生",
+    "titleEn": "Invention of Money",
+    "summaryZh": "美索不达米亚出现了最早的银币计量体系，货币作为普遍的信任媒介成为人类统一的重要力量。",
+    "summaryEn": "The earliest silver-based monetary system appeared in Mesopotamia, with money emerging as a universal medium of trust and a crucial unifying force for humanity.",
+    "detailZh": "大约在公元前2500年，美索不达米亚人发展出了以白银作为标准价值尺度的经济体系。《汉谟拉比法典》中明确规定了各种商品和服务的白银价格——杀死一个自由民需赔偿多少白银，一斗谷物值多少白银。哈拉里将货币描述为人类创造的最成功的「虚构故事」之一。货币的本质不是硬币或纸币本身——它们只是符号——而是人与人之间的信任网络：我接受这张纸，是因为我相信别人也会接受它。正是这种跨越文化、语言和宗教的普遍信任，使货币成为人类统一的第一股重要力量。商人可以在完全陌生的人群中使用货币进行交易，而不需要共享任何文化背景。哈拉里指出，货币是人类历史上最有效的「信仰系统」，因为它是有史以来唯一一个被所有人「信仰」的东西——即使是最虔诚的宗教信徒，在接受货币时也毫不犹豫。",
+    "detailEn": "Around 2500 BCE, the Mesopotamians developed an economic system using silver as a standard measure of value. The Code of Hammurabi explicitly stipulated the silver price for various goods and services — how much silver must be paid for killing a free man, how much silver a bushel of grain was worth. Harari describes money as one of humanity's most successful 'fictional stories.' The essence of money is not the coins or bills themselves — these are merely symbols — but rather the network of trust between people: I accept this piece of paper because I believe others will also accept it. It is precisely this universal trust that transcends culture, language, and religion that made money the first major force for human unification. Merchants could use money to trade with complete strangers without sharing any cultural background. Harari points out that money is the most effective 'belief system' in human history, because it is the only thing ever believed in by everyone — even the most devout religious believers never hesitate when accepting money.",
+    "significance": "key",
+    "tags": ["货币", "信任", "经济", "money", "trust", "economy"]
+  },
+  {
+    "id": "han-empire",
+    "year": -200,
+    "yearDisplay": "约 200 BCE",
+    "yearDisplayEn": "~200 BCE",
+    "era": "unification",
+    "titleZh": "汉帝国建立",
+    "titleEn": "Establishment of the Han Empire",
+    "summaryZh": "汉朝统一了中国，建立了延续两千年的帝国治理模式，将广袤土地上数百万不同族群和文化的人整合为一个政治体。",
+    "summaryEn": "The Han dynasty unified China, establishing an imperial governance model that would endure for two millennia, integrating millions of diverse peoples across a vast territory into a single polity.",
+    "detailZh": "公元前202年，刘邦击败项羽，建立汉朝，开启了中国历史上最辉煌的帝国时代之一。汉朝继承了秦朝的统一框架，但以儒家思想取代了法家的严酷统治，形成了一种更为持久和包容的帝国治理模式。哈拉里从全球史的角度审视汉帝国，将其视为人类统一的关键力量之一。帝国通过统一的文字、法律、货币和官僚体系，将原本操持不同方言、崇拜不同神灵、拥有不同习俗的数千万人纳入一个共同的「想象共同体」。汉朝的丝绸之路将中国与中亚、印度、波斯乃至罗马连接起来，建立了横跨欧亚大陆的贸易和文化交流网络。哈拉里指出，帝国是人类统一的最重要形式之一——几乎所有现代民族国家都起源于帝国，而帝国的遗产至今仍在塑造着我们的世界。帝国的合法性建立在一种普遍的「帝国想象」之上：即普天之下皆为王土，帝国负有将文明带给所有人的使命。",
+    "detailEn": "In 202 BCE, Liu Bang defeated Xiang Yu and established the Han dynasty, inaugurating one of the most brilliant imperial eras in Chinese history. The Han inherited the unified framework of the Qin but replaced Legalist harshness with Confucian ideology, creating a more durable and inclusive model of imperial governance. Harari examines the Han Empire from the perspective of global history, viewing it as one of the key forces for human unification. Through a unified writing system, legal code, currency, and bureaucracy, the empire brought tens of millions of people — speakers of different dialects, worshippers of different deities, carriers of different customs — into a shared 'imagined community.' The Han-era Silk Road connected China with Central Asia, India, Persia, and even Rome, establishing a network of trade and cultural exchange spanning the Eurasian continent. Harari notes that empires are among the most important forms of human unification — nearly all modern nation-states originated from empires, and the legacy of empires continues to shape our world today. Imperial legitimacy rested on a universal 'imperial vision': that all under heaven belongs to the empire, and the empire has a mission to bring civilization to all.",
+    "significance": "major",
+    "tags": ["汉朝", "帝国", "中国", "han-dynasty", "empire", "china"]
+  },
+  {
+    "id": "roman-empire-peak",
+    "year": 100,
+    "yearDisplay": "约 100 CE",
+    "yearDisplayEn": "~100 CE",
+    "era": "unification",
+    "titleZh": "罗马帝国巅峰",
+    "titleEn": "Roman Empire at Its Peak",
+    "summaryZh": "罗马帝国达到鼎盛，其法律、工程、语言和文化将地中海世界统合为一个紧密相连的政治经济单元。",
+    "summaryEn": "The Roman Empire reached its zenith, with its law, engineering, language, and culture unifying the Mediterranean world into a tightly connected political and economic unit.",
+    "detailZh": "公元2世纪初，在图拉真皇帝的统治下，罗马帝国达到了领土和国力的巅峰。帝国的疆域从不列颠延伸到美索不达米亚，从莱茵河和多瑙河延伸到撒哈拉沙漠，统治着大约七千万到一亿人口。罗马帝国是人类统一进程中最为典范的案例之一：它将数百个不同的民族、语言和文化整合在一个法律和政治框架之下。罗马的道路网络、水道系统和统一的货币促进了前所未有的经济一体化。罗马法至今仍是欧陆法系的基础。拉丁语演化为法语、西班牙语、意大利语等多种现代语言。哈拉里特别指出，罗马帝国的持久影响力证明了帝国的文化「同化」力量——被征服的民族最终接受了罗马的身份认同，甚至连日耳曼蛮族在摧毁罗马后也试图继承罗马的称号和遗产。罗马帝国展示了虚构秩序的强大力量：罗马公民权、罗马法和罗马的辉煌——这些概念本身都是虚构，却维系着一个横跨三大洲的帝国长达数百年。",
+    "detailEn": "In the early 2nd century CE, under Emperor Trajan, the Roman Empire reached its territorial and power zenith. The empire stretched from Britain to Mesopotamia, from the Rhine and Danube to the Sahara Desert, ruling an estimated 70 to 100 million people. The Roman Empire stands as one of the most exemplary cases in the process of human unification: it integrated hundreds of different peoples, languages, and cultures under a single legal and political framework. Rome's network of roads, aqueducts, and a unified currency facilitated unprecedented economic integration. Roman law remains the foundation of the continental European legal tradition to this day. Latin evolved into modern French, Spanish, Italian, and other Romance languages. Harari particularly notes that the enduring influence of the Roman Empire demonstrates the cultural 'assimilation' power of empires — conquered peoples eventually adopted Roman identity, and even the Germanic barbarians who destroyed Rome subsequently tried to inherit the Roman title and legacy. The Roman Empire showcases the immense power of fictional orders: Roman citizenship, Roman law, and Roman glory — these concepts were all fictions, yet they sustained an empire spanning three continents for centuries.",
+    "significance": "major",
+    "tags": ["罗马帝国", "地中海", "法律", "roman-empire", "mediterranean", "law"]
+  },
+  {
+    "id": "buddhism-spread",
+    "year": 300,
+    "yearDisplay": "约 300 CE",
+    "yearDisplayEn": "~300 CE",
+    "era": "unification",
+    "titleZh": "佛教广泛传播",
+    "titleEn": "Spread of Buddhism",
+    "summaryZh": "佛教从印度经中亚传播到中国、朝鲜和日本，成为第一个真正跨越不同文明区域的普世宗教。",
+    "summaryEn": "Buddhism spread from India through Central Asia to China, Korea, and Japan, becoming the first truly universal religion to cross between different civilizational zones.",
+    "detailZh": "佛教起源于公元前5世纪的印度，但在阿育王时代（公元前3世纪）才开始大规模传播。到了公元3至4世纪，佛教已经通过丝绸之路传入了中国，并在随后的几个世纪里进一步传播到朝鲜半岛和日本列岛。哈拉里将佛教视为人类统一进程中「普世宗教」的典范。佛教的核心教义——众生皆苦、苦源于欲望、灭苦有道——具有超越特定民族、国家或文化界限的普遍吸引力。与印度教不同，佛教不受种姓制度的束缚，任何人无论出身都可以追求觉悟。商人们沿着丝绸之路携带佛像和经文，僧侣们穿越沙漠和高山建立寺院，使得佛教成为第一个真正全球化的信仰体系。哈拉里指出，普世宗教是人类统一的关键力量之一，因为它们为全球范围内的陌生人提供了共享的价值观和行为准则。佛教、基督教和伊斯兰教这三大普世宗教，各自以不同的方式，在人类历史上推动了一个超越血缘、部落和民族的「人类共同体」概念的形成。",
+    "detailEn": "Buddhism originated in 5th-century BCE India but only began spreading on a large scale during the reign of Ashoka (3rd century BCE). By the 3rd to 4th centuries CE, Buddhism had traveled along the Silk Road into China, and in subsequent centuries further spread to the Korean Peninsula and the Japanese archipelago. Harari sees Buddhism as a model of 'universal religion' in the process of human unification. Buddhism's core teachings — all life is suffering, suffering originates from desire, there is a path to end suffering — possess universal appeal that transcends specific ethnic, national, or cultural boundaries. Unlike Hinduism, Buddhism was not bound by the caste system; anyone, regardless of birth, could pursue enlightenment. Merchants carried Buddha statues and scriptures along the Silk Road, monks crossed deserts and mountains to establish monasteries, making Buddhism the first truly globalized belief system. Harari points out that universal religions are one of the key forces for human unification, because they provide shared values and behavioral codes for strangers across the globe. The three great universal religions — Buddhism, Christianity, and Islam — each in their own way promoted the formation of a 'human community' concept in history that transcends blood, tribe, and nation.",
+    "significance": "major",
+    "tags": ["佛教", "普世宗教", "丝绸之路", "buddhism", "universal-religion", "silk-road"]
+  },
+  {
+    "id": "christianity-rome",
+    "year": 380,
+    "yearDisplay": "380 CE",
+    "yearDisplayEn": "380 CE",
+    "era": "unification",
+    "titleZh": "基督教成为罗马国教",
+    "titleEn": "Christianity Becomes Roman State Religion",
+    "summaryZh": "狄奥多西一世将基督教定为罗马帝国国教，标志着从小型犹太教派到世界性宗教的历史性转变。",
+    "summaryEn": "Theodosius I made Christianity the state religion of the Roman Empire, marking the historic transformation from a small Jewish sect to a global religion.",
+    "detailZh": "公元380年，罗马皇帝狄奥多西一世颁布《萨洛尼卡敕令》，正式将尼西亚基督教定为罗马帝国的唯一合法宗教。这一事件在人类统一史上具有深远意义。基督教起源于公元1世纪犹太地区的一个小型末世论教派，在罗马帝国的最初三百年里，信徒经常遭受迫害。然而，这个看似微不足道的教派凭借其普世主义的理念——所有人都是上帝的子民，不分犹太人还是希腊人，奴隶还是自由人——逐渐吸引了大批信徒。公元313年君士坦丁大帝颁布的《米兰敕令》使基督教合法化，而380年的法令则彻底逆转了宗教格局：曾经被迫害的少数派成为了主流。哈拉里指出，基督教之所以能够成为世界性宗教，正是因为它继承了罗马帝国的普世主义框架，并将其与一神论的宗教热情结合起来。教会组织模仿了罗马帝国的行政管理体系，拉丁语成为西方教会的礼拜语言。从此，基督教成为欧洲精神统一的基石。",
+    "detailEn": "In 380 CE, Roman Emperor Theodosius I issued the Edict of Thessalonica, officially establishing Nicene Christianity as the sole legitimate religion of the Roman Empire. This event held profound significance in the history of human unification. Christianity originated as a small apocalyptic sect in 1st-century Judea and, for its first three centuries in the Roman Empire, its followers were often persecuted. Yet this seemingly insignificant sect, with its universalist message — all people are children of God, whether Jew or Greek, slave or free — gradually attracted large numbers of converts. The Edict of Milan issued by Constantine the Great in 313 CE legalized Christianity, and the 380 decree completely reversed the religious landscape: a once-persecuted minority became the mainstream. Harari notes that Christianity became a global religion precisely because it inherited the universalist framework of the Roman Empire and fused it with monotheistic religious fervor. Church organization mimicked the administrative structure of the Roman Empire, and Latin became the liturgical language of the Western Church. Henceforth, Christianity became the cornerstone of European spiritual unity.",
+    "significance": "major",
+    "tags": ["基督教", "罗马帝国", "国教", "christianity", "roman-empire", "state-religion"]
+  },
+  {
+    "id": "islam-rise",
+    "year": 622,
+    "yearDisplay": "622 CE",
+    "yearDisplayEn": "622 CE",
+    "era": "unification",
+    "titleZh": "伊斯兰教兴起",
+    "titleEn": "Rise of Islam",
+    "summaryZh": "穆罕默德从麦加迁徙到麦地那（希吉拉），伊斯兰教从此迅速崛起为世界主要宗教和帝国统一力量。",
+    "summaryEn": "Muhammad's migration from Mecca to Medina (the Hijra) launched Islam's rapid rise as a major world religion and imperial unifying force.",
+    "detailZh": "公元622年，先知穆罕默德率领信徒从麦加迁徙到麦地那，这一事件——希吉拉——标志着伊斯兰历法的元年，也是伊斯兰教从一个小型阿拉伯宗教团体向世界性宗教帝国转变的起点。在穆罕默德去世后的一个世纪里，阿拉伯穆斯林建立了从伊比利亚半岛延伸到印度河流域的庞大帝国。哈拉里认为伊斯兰教的崛起展示了宗教作为统一力量的非凡效率：伊斯兰教提供了一套完整的「想象秩序」——统一的真主安拉、统一的圣书《古兰经》、统一的礼拜语言阿拉伯语、统一的法律沙里亚——使原本分散的阿拉伯部落整合为一股势不可挡的力量。更重要的是，伊斯兰教也是一套政治、经济和法律体系，它能够同化被征服的各个民族，将波斯人、柏柏尔人、突厥人甚至部分印度人纳入同一个宗教文化共同体。哈拉里指出，伊斯兰教的成功证明了虚构故事的惊人力量——一个阿拉伯商人口述的启示，最终统一了从大西洋到中亚的广袤地带。",
+    "detailEn": "In 622 CE, the Prophet Muhammad led his followers on the migration from Mecca to Medina. This event — the Hijra — marks the first year of the Islamic calendar and the starting point of Islam's transformation from a small Arab religious community into a world-spanning religious empire. Within a century of Muhammad's death, Arab Muslims had established a vast empire stretching from the Iberian Peninsula to the Indus River Valley. Harari sees the rise of Islam as demonstrating the extraordinary efficiency of religion as a unifying force: Islam provided a complete 'imagined order' — a unified God (Allah), a unified holy book (the Quran), a unified liturgical language (Arabic), and a unified legal code (Sharia) — which transformed a collection of scattered Arab tribes into an unstoppable force. More importantly, Islam was also a political, economic, and legal system capable of assimilating conquered peoples, bringing Persians, Berbers, Turks, and even some Indians into a single religious-cultural community. Harari notes that Islam's success proves the astonishing power of fictional stories — the oral revelations of an Arab merchant ultimately unified a vast swath of territory from the Atlantic to Central Asia.",
+    "significance": "key",
+    "tags": ["伊斯兰教", "阿拉伯", "帝国", "islam", "arab", "empire"]
+  },
+  {
+    "id": "printing-invented-china",
+    "year": 600,
+    "yearDisplay": "约 600 CE",
+    "yearDisplayEn": "~600 CE",
+    "era": "unification",
+    "titleZh": "中国发明印刷术",
+    "titleEn": "Invention of Printing in China",
+    "summaryZh": "中国隋唐时期发明了雕版印刷术，使知识和思想能够以前所未有的速度和规模传播，推动了文化的统一。",
+    "summaryEn": "Woodblock printing was invented in China during the Sui-Tang period, enabling knowledge and ideas to spread at unprecedented speed and scale, promoting cultural unification.",
+    "detailZh": "大约在公元7世纪，中国发明了雕版印刷术。最早的印刷品是佛教经文和咒语，反映了宗教对传播技术的巨大需求。哈拉里认为，印刷术的发明是人类信息传播史上仅次于文字的第二大革命。在印刷术出现之前，知识的传播完全依赖手抄——一本书必须由抄写员逐字抄录，过程缓慢且容易累积错误。雕版印刷使得同一文本可以被精确地复制成千上万份，知识传播的成本急剧下降。中国唐代的雕版印刷技术被广泛用于印制佛教经文、儒家经典和历书，推动了文化教育在更广泛的社会层面上的普及。后来的活字印刷（毕昇，11世纪）进一步提高了印刷效率。这项技术通过丝绸之路和蒙古帝国的连接传向西方，最终在15世纪被谷登堡改进为金属活字印刷机，引爆了欧洲的知识革命。哈拉里指出，信息传播技术的每一次飞跃，都使「想象共同体」的范围扩大一层。",
+    "detailEn": "Around the 7th century CE, China invented woodblock printing. The earliest printed materials were Buddhist scriptures and spells, reflecting religion's immense demand for dissemination technology. Harari considers the invention of printing to be the second greatest revolution in the history of human information transmission, after writing itself. Before printing, the spread of knowledge relied entirely on manual copying — each book had to be transcribed word by word by a scribe, a slow process prone to accumulating errors. Woodblock printing allowed the same text to be precisely reproduced in thousands of copies, dramatically reducing the cost of knowledge dissemination. Tang dynasty woodblock printing technology was widely used to produce Buddhist sutras, Confucian classics, and almanacs, promoting the popularization of culture and education across broader strata of society. The later invention of movable type (Bi Sheng, 11th century) further improved printing efficiency. This technology traveled westward via the Silk Road and the connections forged by the Mongol Empire, and was eventually improved by Gutenberg into the metal movable-type printing press in the 15th century, igniting Europe's knowledge revolution. Harari notes that every leap in information transmission technology expands the scope of the 'imagined community' by one more layer.",
+    "significance": "major",
+    "tags": ["印刷术", "中国", "信息传播", "printing", "china", "information"]
+  },
+  {
+    "id": "mongol-empire",
+    "year": 1206,
+    "yearDisplay": "1206 CE",
+    "yearDisplayEn": "1206 CE",
+    "era": "unification",
+    "titleZh": "蒙古帝国建立",
+    "titleEn": "Establishment of the Mongol Empire",
+    "summaryZh": "成吉思汗统一蒙古各部，建立了人类历史上最大的陆地连续帝国，将欧亚大陆的大部分地区连接为一个体系。",
+    "summaryEn": "Genghis Khan unified the Mongol tribes and established the largest contiguous land empire in human history, connecting most of Eurasia into a single system.",
+    "detailZh": "1206年，铁木真在斡难河源头被推举为成吉思汗，统一了长期分裂的蒙古各部，由此开启了人类历史上规模最宏大的陆地征服。在成吉思汗及其继承者的领导下，蒙古铁骑在短短几十年间横扫了从中国到东欧、从西伯利亚到波斯的广袤地域，建立起一个面积超过3300万平方公里的庞大帝国。哈拉里从全球统一的角度审视蒙古帝国，认为它在客观上极大地推动了欧亚大陆的经济和文化一体化。蒙古人建立的「蒙古和平」（Pax Mongolica）保障了丝绸之路的安全，使得商人、传教士、技术工匠和学者可以在从北京到巴格达再到威尼斯的广阔地带安全通行。中国的火药、印刷术和纸币，伊斯兰世界的数学和天文学，欧洲的玻璃制作技术，都在蒙古帝国的体系内自由流动。马可·波罗的东游之所以可能，正是因为蒙古帝国创造了前所未有的跨洲连接。",
+    "detailEn": "In 1206, Temüjin was proclaimed Genghis Khan at the source of the Onon River, unifying the long-divided Mongol tribes and thereby launching the most extensive land conquest in human history. Under the leadership of Genghis Khan and his successors, Mongol cavalry swept across a vast expanse from China to Eastern Europe, from Siberia to Persia, within just a few decades, establishing an empire covering over 33 million square kilometers. Harari examines the Mongol Empire from the perspective of global unification, arguing that it objectively promoted economic and cultural integration across Eurasia on an enormous scale. The 'Pax Mongolica' — the Mongol Peace — secured the safety of the Silk Road, enabling merchants, missionaries, artisans, and scholars to travel safely across the vast belt from Beijing to Baghdad to Venice. Chinese gunpowder, printing, and paper money; Islamic mathematics and astronomy; European glass-making techniques — all flowed freely within the Mongol imperial system. Marco Polo's journey to the East was possible precisely because the Mongol Empire had created an unprecedented transcontinental connection.",
+    "significance": "major",
+    "tags": ["蒙古帝国", "成吉思汗", "丝绸之路", "mongol-empire", "genghis-khan", "silk-road"]
+  },
+  {
+    "id": "black-death",
+    "year": 1347,
+    "yearDisplay": "1347 CE",
+    "yearDisplayEn": "1347 CE",
+    "era": "unification",
+    "titleZh": "黑死病蔓延",
+    "titleEn": "The Black Death",
+    "summaryZh": "鼠疫从亚洲经丝绸之路传入欧洲，在短短数年内夺走欧亚大陆三分之一到一半的人口，深刻改变了历史进程。",
+    "summaryEn": "The plague spread from Asia along the Silk Road into Europe, killing one-third to one-half of the Eurasian population within a few years and profoundly altering the course of history.",
+    "detailZh": "1347年，鼠疫杆菌搭乘黑鼠和跳蚤从亚洲内陆沿着蒙古帝国建立的贸易路线传入欧洲。在接下来的几年中，黑死病横扫整个欧亚大陆，造成了人类历史上最惨烈的人口灾难——欧洲损失了约30%到60%的人口，中国和中东也遭受了相似的打击。哈拉里将黑死病视为「全球化」的第一个黑暗面向：蒙古帝国和丝绸之路将欧亚大陆前所未有地连接在一起，但这种连接也使疾病得以以前所未有的速度跨大陆传播。在此之前，传染病大多局限于特定的地理范围内，因为跨区域旅行的速度和规模有限。但统一帝国的建立、贸易路线的繁荣和人口流动的加剧，为病原体创造了一个「全球性生态系统」。哈拉里指出，黑死病是人类统一进程中一个悲惨的里程碑：它清楚地表明，人类在走向统一的同时，也走向了共享的脆弱性。这一教训在今天的全球化时代仍然有效——我们在全球化的同时也全球化着我们的风险。",
+    "detailEn": "In 1347, the bacterium Yersinia pestis, carried by black rats and fleas, traveled from the interior of Asia along the trade routes established by the Mongol Empire into Europe. In the following few years, the Black Death swept across Eurasia, causing the most catastrophic population disaster in human history — Europe lost roughly 30% to 60% of its population, and China and the Middle East suffered similar blows. Harari views the Black Death as the first dark facet of 'globalization': the Mongol Empire and the Silk Road connected Eurasia as never before, but this connection also enabled diseases to spread across continents at unprecedented speed. Before this, infectious diseases were largely confined to specific geographic regions because the speed and scale of long-distance travel were limited. But the establishment of unified empires, the flourishing of trade routes, and the intensification of human movement created a 'global ecosystem' for pathogens. Harari notes that the Black Death was a tragic milestone in the process of human unification: it clearly demonstrated that as humanity moves toward unity, it also moves toward shared vulnerability. This lesson remains valid in today's era of globalization — as we globalize, we also globalize our risks.",
+    "significance": "major",
+    "tags": ["黑死病", "鼠疫", "全球化", "black-death", "plague", "globalization"]
+  },
+  {
+    "id": "columbus-americas",
+    "year": 1492,
+    "yearDisplay": "1492 CE",
+    "yearDisplayEn": "1492 CE",
+    "era": "unification",
+    "titleZh": "哥伦布发现美洲",
+    "titleEn": "Columbus Reaches the Americas",
+    "summaryZh": "哥伦布抵达美洲，首次将东半球和西半球连接成一个统一的全球体系，开启了人类历史的真正全球化时代。",
+    "summaryEn": "Columbus reached the Americas, for the first time connecting the Eastern and Western Hemispheres into a unified global system, inaugurating the era of true globalization.",
+    "detailZh": "1492年10月12日，哥伦布的船队在经历了两个多月的航行后抵达了巴哈马群岛中的一个小岛，他将此岛命名为圣萨尔瓦多。哥伦布至死都相信自己到达的是亚洲东海岸，但他实际上开辟的是人类历史上前所未有的跨大西洋通道。哈拉里认为，哥伦布的发现是人类统一进程中的决定性时刻——在此之前，亚欧非大陆（旧世界）和美洲大陆（新世界）已经分离了一万多年。哥伦布的航行将两个独立的人类世界重新连接起来。然而，这一「连接」对美洲原住民来说是一场灭顶之灾：欧洲人带来的天花、麻疹和流感等传染病杀死了约90%的美洲原住民，而征服和奴役造成了进一步的破坏。哈拉里指出，「哥伦布大交换」——植物、动物、疾病、文化、人口在东西半球之间大规模流动——创造了一个真正意义上的全球生态系统和全球经济体系。这是人类历史上第一次，地球真正成为了「一个世界」。",
+    "detailEn": "On October 12, 1492, after more than two months at sea, Columbus's fleet reached a small island in the Bahamas, which he named San Salvador. Columbus went to his grave believing he had reached the eastern shores of Asia, but what he had actually opened was an unprecedented transatlantic passage in human history. Harari considers Columbus's discovery to be the decisive moment in the process of human unification — before this, the Afro-Eurasian landmass (the Old World) and the Americas (the New World) had been separated for over ten thousand years. Columbus's voyage reconnected two independent human worlds. However, this 'connection' was catastrophic for the indigenous peoples of the Americas: infectious diseases brought by Europeans — smallpox, measles, and influenza — killed roughly 90% of the native American population, while conquest and enslavement caused further devastation. Harari points out that the 'Columbian Exchange' — the massive flow of plants, animals, diseases, cultures, and populations between the Eastern and Western Hemispheres — created a truly global ecosystem and global economic system. For the first time in human history, the Earth truly became 'one world.'",
+    "significance": "key",
+    "tags": ["哥伦布", "美洲", "全球化", "columbus", "americas", "globalization"]
+  },
+  {
+    "id": "scientific-revolution",
+    "year": 1543,
+    "yearDisplay": "1543 CE",
+    "yearDisplayEn": "1543 CE",
+    "era": "scientific",
+    "titleZh": "科学革命开端",
+    "titleEn": "The Scientific Revolution Begins",
+    "summaryZh": "哥白尼发表《天体运行论》，提出日心说，标志着人类开始承认无知并系统性地追求新知识。",
+    "summaryEn": "Copernicus published 'On the Revolutions of the Celestial Spheres,' proposing the heliocentric theory and marking humanity's admission of ignorance and systematic pursuit of new knowledge.",
+    "detailZh": "1543年，波兰天文学家尼古拉·哥白尼在临终前发表了《天体运行论》，提出了日心说——地球并非宇宙的中心，而是围绕太阳运转的一颗普通行星。哈拉里将这一时刻视为科学革命的开端。科学革命的核心特征不是某项具体发现，而是一种全新的认知态度：首先承认自己的无知，然后通过观察和实证来获取新知识。在此之前，人类的各种文化传统——宗教、哲学、民间智慧——都声称自己已经掌握了关于世界的最重要真理。科学研究之所以能够突飞猛进，恰恰是因为它坦然地接受了「我们不知道」这一前提。哈拉里指出，科学革命与帝国主义和资本主义形成了互相促进的三驾马车：科学为帝国提供了征服和改造世界所需的军事技术和组织知识；帝国为科学提供了探索未知领域的资金和基础设施；资本主义则为两者提供了持续的经济动力。正是这三者的结合，使欧洲在短短几个世纪内从世界舞台的边缘崛起为全球的主宰力量。",
+    "detailEn": "In 1543, Polish astronomer Nicolaus Copernicus published 'On the Revolutions of the Celestial Spheres' on his deathbed, proposing the heliocentric theory — that Earth is not the center of the universe but an ordinary planet orbiting the Sun. Harari marks this moment as the beginning of the Scientific Revolution. The core characteristic of the Scientific Revolution is not any particular discovery but a fundamentally new cognitive attitude: first admit one's ignorance, then acquire new knowledge through observation and empirical evidence. Before this, every human cultural tradition — religion, philosophy, folk wisdom — claimed to already possess the most important truths about the world. Scientific research advanced by leaps and bounds precisely because it honestly accepted the premise that 'we don't know.' Harari points out that the Scientific Revolution, imperialism, and capitalism formed a mutually reinforcing triumvirate: science provided empires with the military technology and organizational knowledge needed to conquer and transform the world; empires provided science with the funding and infrastructure to explore unknown territories; and capitalism provided the sustained economic engine for both. It was the combination of these three that propelled Europe from the margins of the world stage to global dominance in just a few centuries.",
+    "significance": "key",
+    "tags": ["科学革命", "哥白尼", "日心说", "scientific-revolution", "copernicus", "heliocentrism"]
+  },
+  {
+    "id": "industrial-revolution",
+    "year": 1760,
+    "yearDisplay": "约 1760 CE",
+    "yearDisplayEn": "~1760 CE",
+    "era": "scientific",
+    "titleZh": "工业革命",
+    "titleEn": "The Industrial Revolution",
+    "summaryZh": "蒸汽机和工厂体系的发明使人类突破了有机能源的限制，开启了人类历史上最深刻的生产力变革。",
+    "summaryEn": "The invention of the steam engine and the factory system allowed humanity to break through organic energy limits, launching history's most profound productive transformation.",
+    "detailZh": "大约从1760年代开始，英国率先进入了工业革命时代。蒸汽机的改进和工厂生产的推广，使人类首次突破了依赖太阳能和生物转化（植物通过光合作用、动物和人通过消化食物）获取能源的生物学限制。哈拉里强调，在工业革命之前，人类的一切活动——农业、手工业、运输——归根结底都依赖于太阳能通过生物转换获得的有限有机能源。蒸汽机使人类能够利用储存在煤炭和石油中的远古太阳能，从而释放出前所未有的生产力和破坏力。纺织工厂可以在一年内生产出手工作坊一个世纪都织不出的布匹；铁路和轮船使旅行速度提高了数十倍；化肥和农业机械使粮食产量爆炸式增长。但哈拉里也指出了工业革命的阴暗面：城市化带来了拥挤的贫民窟和恶劣的工作条件，化石燃料的大规模使用引发了我们今天仍在应对的气候危机，而工业化社会的时间表——精确到分钟的工厂作息——彻底改变了人类与自然时间的关系。",
+    "detailEn": "Beginning around the 1760s, Britain entered the era of the Industrial Revolution. The improvement of the steam engine and the spread of factory production enabled humanity to break through, for the first time, the biological constraint of relying on solar energy and biological conversion — plants through photosynthesis, animals and humans through digesting food — for energy. Harari emphasizes that before the Industrial Revolution, all human activities — agriculture, crafts, transportation — ultimately depended on the limited organic energy obtained from solar energy through biological conversion. The steam engine allowed humans to tap into ancient solar energy stored in coal and oil, thereby unleashing unprecedented productive — and destructive — power. Textile factories could produce in a year more cloth than a manual workshop could produce in a century; railways and steamships increased travel speeds dozens of times over; fertilizers and agricultural machinery caused food production to explode. But Harari also notes the dark side of the Industrial Revolution: urbanization brought crowded slums and brutal working conditions, the massive use of fossil fuels triggered the climate crisis we still grapple with today, and the industrialized society's timetable — factory schedules precise to the minute — fundamentally altered humanity's relationship with natural time.",
+    "significance": "key",
+    "tags": ["工业革命", "蒸汽机", "能源", "industrial-revolution", "steam-engine", "energy"]
+  },
+  {
+    "id": "darwin-origin-of-species",
+    "year": 1859,
+    "yearDisplay": "1859 CE",
+    "yearDisplayEn": "1859 CE",
+    "era": "scientific",
+    "titleZh": "达尔文《物种起源》",
+    "titleEn": "Darwin's Origin of Species",
+    "summaryZh": "达尔文发表《物种起源》，提出自然选择理论，彻底颠覆了人类对自身起源和生命本质的传统认知。",
+    "summaryEn": "Darwin published 'On the Origin of Species,' proposing the theory of natural selection and radically overturning traditional beliefs about human origins and the nature of life.",
+    "detailZh": "1859年，查尔斯·达尔文发表了《物种起源》，系统阐述了自然选择进化论。这一理论指出，所有生物物种——包括人类——并非由神一次性创造的完美存在，而是通过数百万年的自然选择和随机变异逐步演化而来。哈拉里认为，《物种起源》的影响远远超出了生物学领域：它摧毁了智人自认为是「万物之灵」的幻想，将人类重新放回动物王国之中。在达尔文之前，几乎所有文化——无论是基督教、伊斯兰教还是中国传统——都将人类置于一个特殊的、有别于其他生物的本体论位置。达尔文之后，人类再也无法心安理得地认为自己与黑猩猩、水母或细菌有本质区别。哈拉里指出，这正是科学革命的典型方式——科学不是通过提供安慰来进步的，而是通过推翻我们最珍爱的故事来扩展人类的认知边界。《物种起源》引发了一场至今仍在发酵的文化风暴，它迫使人类重新思考「我是谁」这个最根本的问题。",
+    "detailEn": "In 1859, Charles Darwin published 'On the Origin of Species,' systematically laying out the theory of evolution by natural selection. This theory stated that all biological species — including humans — were not perfect beings created once by a deity, but had evolved gradually over millions of years through natural selection acting on random variation. Harari considers the impact of 'On the Origin of Species' to extend far beyond biology: it demolished the Sapiens fantasy of being the 'crown of creation,' placing humans back within the animal kingdom. Before Darwin, virtually every culture — whether Christian, Islamic, or Chinese — assigned humans a special ontological position distinct from all other living beings. After Darwin, humans could no longer comfortably claim an essential difference from chimpanzees, jellyfish, or bacteria. Harari points out that this is the typical mode of the Scientific Revolution — science does not advance by providing comfort, but by overturning our most cherished stories to expand the boundaries of human knowledge. 'On the Origin of Species' triggered a cultural storm that continues to brew to this day, forcing humanity to reconsider the most fundamental question: 'Who am I?'",
+    "significance": "major",
+    "tags": ["达尔文", "进化论", "自然选择", "darwin", "evolution", "natural-selection"]
+  },
+  {
+    "id": "electricity-engine",
+    "year": 1880,
+    "yearDisplay": "约 1880 CE",
+    "yearDisplayEn": "~1880 CE",
+    "era": "scientific",
+    "titleZh": "电力与内燃机",
+    "titleEn": "Electricity and the Internal Combustion Engine",
+    "summaryZh": "电力的普及和内燃机的发明引发了第二次工业革命，彻底改变了人类的生产、交通和日常生活方式。",
+    "summaryEn": "The spread of electricity and the invention of the internal combustion engine triggered the Second Industrial Revolution, fundamentally transforming production, transportation, and daily life.",
+    "detailZh": "19世纪末期，两项互为补充的技术创新——电力和内燃机——共同推动了第二次工业革命的浪潮。爱迪生和特斯拉等人的发明使电力走进了工厂和家庭，电灯延长了人类活动的时间，电动机为工业生产提供了清洁高效的动力。与此同时，内燃机的出现使得汽车和飞机成为可能，彻底重构了人类的空间观念。哈拉里从宏观历史的角度指出，电力与内燃机的意义在于它们使人类最终摆脱了对生物能源的完全依赖。一桶石油蕴含的能量相当于一个工人数年的体力劳动。当人类可以将如此巨大的能量集中释放在一个汽车引擎或发电机中时，生产力便以指数级别增长。城市在夜晚亮如白昼，火车和汽车以每小时上百公里的速度飞驰，这一切对农业时代的祖先来说都是不可思议的奇迹。但哈拉里也提醒我们，这些技术进步的代价是巨大的：全球性的环境污染、资源枯竭和气候变化正是第二次工业革命的遗产。",
+    "detailEn": "In the late 19th century, two complementary technological innovations — electricity and the internal combustion engine — jointly drove the wave of the Second Industrial Revolution. The inventions of Edison, Tesla, and others brought electricity into factories and homes; electric lights extended the hours of human activity, and electric motors provided clean, efficient power for industrial production. Meanwhile, the internal combustion engine made automobiles and airplanes possible, fundamentally restructuring humanity's conception of space. Harari points out from a macro-historical perspective that the significance of electricity and the internal combustion engine lies in their finally liberating humanity from complete dependence on biological energy. A barrel of oil contains energy equivalent to several years of a worker's physical labor. When humans could concentrate such immense energy for release in a car engine or an electric generator, productivity grew at an exponential rate. Cities blazed with light at night, trains and automobiles hurtled along at over a hundred kilometers per hour — all unimaginable miracles to agricultural-era ancestors. But Harari also reminds us that the cost of these technological advances was immense: global environmental pollution, resource depletion, and climate change are the legacy of the Second Industrial Revolution.",
+    "significance": "major",
+    "tags": ["电力", "内燃机", "第二次工业革命", "electricity", "internal-combustion", "industrialization"]
+  },
+  {
+    "id": "atomic-bomb",
+    "year": 1945,
+    "yearDisplay": "1945 CE",
+    "yearDisplayEn": "1945 CE",
+    "era": "scientific",
+    "titleZh": "原子弹爆炸",
+    "titleEn": "The Atomic Bomb",
+    "summaryZh": "美国在广岛和长崎投下原子弹，人类首次获得了毁灭自身文明的能力，彻底改变了战争与和平的含义。",
+    "summaryEn": "The United States dropped atomic bombs on Hiroshima and Nagasaki, giving humanity for the first time the ability to destroy its own civilization and fundamentally altering the meaning of war and peace.",
+    "detailZh": "1945年8月，美国在日本的广岛和长崎投下两颗原子弹，瞬间造成了数十万人的死亡，并迫使日本无条件投降，第二次世界大战结束。哈拉里认为，原子弹的问世是人类历史上最具象征意义的时刻之一——它标志着人类获得了毁灭自己的能力。在原子弹之前，无论战争多么惨烈，人类作为一个物种始终是安全的。即使是成吉思汗的征服或黑死病的肆虐，也从未威胁到智人物种的存续。但核武器改变了这一切：一场全面的核战争可以在几小时内杀死数十亿人，并引发核冬天摧毁全球生态系统。哈拉里指出，正因为核武器赋予了人类自我毁灭的能力，它也催生了前所未有的全球合作机制——联合国、军备控制条约以及大国之间的对话机制。人类第一次意识到，我们坐在同一条船上，这条船可能被我们亲手炸沉。核和平——即核大国之间没有直接战争的时期——是人类历史上最长的和平时期之一，但它建立在一种永恒的恐惧之上。",
+    "detailEn": "In August 1945, the United States dropped two atomic bombs on the Japanese cities of Hiroshima and Nagasaki, instantly killing hundreds of thousands and forcing Japan's unconditional surrender, ending World War II. Harari considers the advent of the atomic bomb to be one of the most symbolically significant moments in human history — it marked humanity's acquisition of the power to destroy itself. Before the atomic bomb, no matter how brutal war became, humanity as a species was always secure. Not even Genghis Khan's conquests or the ravages of the Black Death ever threatened the survival of the Sapiens species. But nuclear weapons changed everything: a full-scale nuclear war could kill billions within hours and trigger a nuclear winter that would destroy the global ecosystem. Harari points out that precisely because nuclear weapons gave humanity the capacity for self-annihilation, they also spawned unprecedented mechanisms for global cooperation — the United Nations, arms control treaties, and dialogue mechanisms between great powers. For the first time, humanity realized we are all in the same boat, and that boat could be blown up by our own hands. The 'nuclear peace' — the period in which nuclear powers have not fought direct wars against each other — is among the longest periods of peace in human history, but it is built on an abiding terror.",
+    "significance": "key",
+    "tags": ["原子弹", "核武器", "战争", "atomic-bomb", "nuclear", "war"]
+  },
+  {
+    "id": "moon-landing",
+    "year": 1969,
+    "yearDisplay": "1969 CE",
+    "yearDisplayEn": "1969 CE",
+    "era": "scientific",
+    "titleZh": "人类登月",
+    "titleEn": "Moon Landing",
+    "summaryZh": "阿波罗11号将人类送上月球，标志着智人这一物种首次踏足地球以外的天体，开辟了太空探索的新纪元。",
+    "summaryEn": "Apollo 11 landed humans on the Moon, marking the first time the Sapiens species set foot on a celestial body beyond Earth and opening a new era of space exploration.",
+    "detailZh": "1969年7月20日，美国宇航员尼尔·阿姆斯特朗踏上月球表面，说出了那句不朽的名言：「这是个人的一小步，却是人类的一大步。」阿波罗11号的成功是人类科学革命最壮丽的成果之一。哈拉里将其视为一个标志性事件：智人——这个起源于东非草原、一度只是食物链中层生物的物种——居然将自己的足迹印在了另一个天体上。登月是科学、资本主义和国家力量结合的巅峰之作。阿波罗计划耗费了约250亿美元（相当于今天的数千亿美元），动员了数十万名科学家、工程师和技术工人，其背后的推动力不仅是纯粹的科学探索精神，更是冷战中美苏两国在意识形态和技术领域激烈竞争的产物。哈拉里指出，登月事件还具有深刻的心理和文化意义：当宇航员从月球回望地球时拍摄的那张「蓝色弹珠」照片，第一次让人类看到了自己家园的全貌——一颗悬浮在黑暗宇宙中的脆弱蓝色星球。这张照片成为了环保运动最有力的视觉象征。",
+    "detailEn": "On July 20, 1969, American astronaut Neil Armstrong stepped onto the lunar surface and spoke the immortal words: 'That's one small step for a man, one giant leap for mankind.' The success of Apollo 11 was among the most magnificent achievements of the human Scientific Revolution. Harari sees it as a landmark event: Sapiens — a species that originated on the East African savanna and once occupied the middle rungs of the food chain — had actually left its footprints on another celestial body. The Moon landing was a crowning synthesis of science, capitalism, and state power. The Apollo program cost roughly $25 billion (equivalent to hundreds of billions in today's currency) and mobilized hundreds of thousands of scientists, engineers, and technicians. The driving force behind it was not merely pure scientific curiosity, but also the intense ideological and technological rivalry between the United States and the Soviet Union during the Cold War. Harari notes that the Moon landing also carried profound psychological and cultural significance: the 'Blue Marble' photograph taken by astronauts looking back at Earth from the Moon gave humanity its first view of its home planet in its entirety — a fragile blue sphere suspended in the dark cosmos. This image became the most potent visual symbol of the environmental movement.",
+    "significance": "major",
+    "tags": ["登月", "太空探索", "科学", "moon-landing", "space-exploration", "science"]
+  },
+  {
+    "id": "internet-birth",
+    "year": 1990,
+    "yearDisplay": "约 1990 CE",
+    "yearDisplayEn": "~1990 CE",
+    "era": "scientific",
+    "titleZh": "互联网诞生",
+    "titleEn": "Birth of the Internet",
+    "summaryZh": "万维网的创立使全球数十亿人连接在一个即时信息网络中，人类第一次拥有了真正全球性的共享意识平台。",
+    "summaryEn": "The creation of the World Wide Web connected billions across the globe in an instant information network, giving humanity its first truly global shared consciousness platform.",
+    "detailZh": "1990年，蒂姆·伯纳斯-李发明了万维网（World Wide Web），使互联网从一个主要用于科研和军事的技术系统转变为一个全球性的信息共享平台。哈拉里认为互联网的出现是人类自文字发明以来信息传播领域最大的一次革命。在互联网之前，信息的跨距离传播需要数天、数周甚至数月的时间，而且信息的控制权掌握在少数精英——政府、教会、媒体集团——手中。互联网彻底改变了这种格局：任何人只需要一个联网设备和基本的读写能力，就可以即时向全球受众发布信息。这使得人类集体拥有了一个前所未有的「全球大脑」——数十亿人可以在同一时间获取同样的信息、讨论同样的议题、形成同样的观点。哈拉里指出，互联网既是人类统一的终极工具，也是社会分裂的催化剂：它可以将缅甸的民主运动、阿拉伯之春或气候变化议题瞬间变成全球关注的焦点，但同时也催生了虚假信息、网络极端主义和「信息茧房」效应。",
+    "detailEn": "In 1990, Tim Berners-Lee invented the World Wide Web, transforming the internet from a technology system used primarily for scientific and military purposes into a global information-sharing platform. Harari considers the emergence of the internet to be the greatest revolution in information dissemination since the invention of writing. Before the internet, the long-distance transmission of information required days, weeks, or even months, and control over information was concentrated in the hands of a small elite — governments, churches, media conglomerates. The internet fundamentally altered this landscape: anyone with a connected device and basic literacy could instantly publish information to a global audience. This gave humanity a collective 'global brain' — billions of people could access the same information, discuss the same issues, and form the same views simultaneously. Harari notes that the internet is both the ultimate tool of human unification and a catalyst for social fragmentation: it can instantly turn Myanmar's democracy movement, the Arab Spring, or climate change into globally focused concerns, but it has also spawned disinformation, online extremism, and the 'information cocoon' effect.",
+    "significance": "key",
+    "tags": ["互联网", "万维网", "信息革命", "internet", "world-wide-web", "information"]
+  },
+  {
+    "id": "crispr-gene-editing",
+    "year": 2012,
+    "yearDisplay": "2012 CE",
+    "yearDisplayEn": "2012 CE",
+    "era": "scientific",
+    "titleZh": "CRISPR基因编辑",
+    "titleEn": "CRISPR Gene Editing",
+    "summaryZh": "CRISPR-Cas9基因编辑技术的突破使人类获得了重写生命密码的能力，开启了智能设计的后人类时代之门。",
+    "summaryEn": "The breakthrough in CRISPR-Cas9 gene editing technology gave humanity the ability to rewrite the code of life, opening the door to a post-human era of intelligent design.",
+    "detailZh": "2012年，詹妮弗·杜德纳和埃马纽埃尔·沙尔庞捷发表了一项改变世界的发现：CRISPR-Cas9——一种源自细菌免疫系统的基因编辑工具——可以被编程来精准切割和修改任何生物体的DNA序列。哈拉里在《人类简史》的结尾部分着重讨论了21世纪生物技术革命的深远影响。他指出，人类历史上第一次，「智慧设计」取代了自然选择。几千年来，人类一直在驯化动植物，但我们只能通过选择性繁殖来间接影响基因，且速度极为缓慢。CRISPR改变了这一切：科学家现在可以在数周内精确地编辑基因，设计出具有特定性状的植物、动物甚至人类胚胎。哈拉里警告说，这项技术不仅带来了治愈遗传疾病的美好前景，也带来了深刻的社会和伦理挑战：如果富人能够通过基因编辑让自己的孩子更聪明、更健康、更漂亮，那么人类可能会分化成不同的生物阶级——一种是经过基因增强的「上层阶级」，另一种是保持自然基因的「下层阶级」。这是人类自我神化的终极一步，也是我们面临的最严峻挑战。",
+    "detailEn": "In 2012, Jennifer Doudna and Emmanuelle Charpentier published a world-changing discovery: CRISPR-Cas9 — a gene-editing tool derived from bacterial immune systems — could be programmed to precisely cut and modify the DNA sequences of any organism. Harari, in the closing sections of 'Sapiens,' devotes significant attention to the profound implications of the 21st-century biotechnology revolution. He points out that, for the first time in human history, 'intelligent design' has replaced natural selection as the driver of biological change. For thousands of years, humans have been domesticating plants and animals, but we could only influence genes indirectly through selective breeding, and the pace was agonizingly slow. CRISPR changed everything: scientists can now edit genes precisely within weeks, designing plants, animals, and even human embryos with specific traits. Harari warns that this technology brings not only the bright prospect of curing genetic diseases but also profound social and ethical challenges: if the wealthy can use gene editing to make their children smarter, healthier, and more beautiful, humanity could split into different biological classes — a genetically enhanced 'upper class' and a naturally genetic 'lower class.' This is the ultimate step in human self-deification, and the gravest challenge we face.",
+    "significance": "major",
+    "tags": ["基因编辑", "CRISPR", "生物技术", "gene-editing", "crispr", "biotechnology"]
+  },
+  {
+    "id": "ai-revolution",
+    "year": 2020,
+    "yearDisplay": "约 2020 CE",
+    "yearDisplayEn": "~2020 CE",
+    "era": "scientific",
+    "titleZh": "AI革命",
+    "titleEn": "The AI Revolution",
+    "summaryZh": "人工智能技术的飞跃发展使机器开始拥有超越人类的认知能力，人类面临着被自身创造物取代的前所未有的挑战。",
+    "summaryEn": "The rapid advancement of artificial intelligence has given machines cognitive abilities surpassing humans, confronting humanity with the unprecedented challenge of being replaced by its own creations.",
+    "detailZh": "进入21世纪第三个十年，人工智能的发展速度超出了大多数人的预期。深度学习、大语言模型和通用人工智能的前景不再是科幻小说的题材，而是真实的技术趋势和深刻的文明挑战。哈拉里在《人类简史》结尾处提出了一个根本性的问题：智人物种的下一步是什么？他设想了一个「智慧设计」取代「自然选择」的未来，人工智能正是这一图景中最具颠覆性的力量。在过去，人类之所以能够统治世界，是因为我们拥有独一无二的智能优势——认知革命赋予我们的语言能力和大规模合作能力。但如果人工智能的发展使得算法在越来越多的领域——从驾驶车辆到诊断疾病、从创作音乐到撰写法律文书——超越了人类的认知能力，那么人类作为「最有智慧物种」的核心基础就将被瓦解。哈拉里提出，21世纪的人类可能面临一个最关键的选择：我们是保持人类的主体性，还是将权力让渡给算法？这个问题的答案，将决定智人物种的未来走向。",
+    "detailEn": "Entering the third decade of the 21st century, the pace of artificial intelligence development has exceeded most people's expectations. Deep learning, large language models, and the prospect of artificial general intelligence are no longer science fiction but real technological trends and profound civilizational challenges. At the end of 'Sapiens,' Harari poses a fundamental question: What is next for the Sapiens species? He envisions a future where 'intelligent design' replaces 'natural selection,' and artificial intelligence is the most disruptive force within this picture. In the past, humans ruled the world because we possessed a unique cognitive advantage — the linguistic abilities and capacity for large-scale cooperation granted by the Cognitive Revolution. But if the development of AI means that algorithms surpass human cognitive abilities in more and more domains — from driving cars to diagnosing diseases, from composing music to writing legal documents — then the very foundation of humanity's status as the 'most intelligent species' will be undermined. Harari suggests that 21st-century humans may face the most critical choice of all: do we maintain human agency, or do we cede power to algorithms? The answer to this question will determine the future trajectory of the Sapiens species.",
+    "significance": "key",
+    "tags": ["人工智能", "AI", "后人类", "artificial-intelligence", "ai", "post-human"]
+  }
+];
+
+  // --- Load timeline data ---
+  function loadTimeline() {
+    try {
+      timelineNodes = TIMELINE_DATA.map(node => {
+        const x = yearToX(node.year);
+        const offset = nodeYOffset(node.id);
+        const eraIndex = ERA_COLORS.indexOf(node.era);
+        const bandHeight = ch / 5;
+        const bandTop = ch * 0.1 + eraIndex * bandHeight;
+        const y = bandTop + bandHeight * 0.3 + offset * bandHeight * 0.4;
+        return { ...node, x, y };
+      });
+      timelineLoaded = true;
+      console.log(`Loaded ${timelineNodes.length} timeline nodes`);
+    } catch (e) {
+      console.error('Failed to load timeline:', e);
+    }
+  }
+  
+  // --- Resize ---
+  function resize() {
+    const dpr = window.devicePixelRatio || 1;
+    width = window.innerWidth;
+    height = window.innerHeight;
+    cw = width * 3;
+    ch = height * 3;
+    canvas.width = cw * dpr;
+    canvas.height = ch * dpr;
+    canvas.style.width = cw + 'px';
+    canvas.style.height = ch + 'px';
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+    initStars();
+    panX = cw / 2;
+    panY = ch / 2;
+    // Start at cognitive era with better zoom
+    targetZoom = 1.5;
+    targetPanX = yearToX(-70000); // Cognitive Revolution center
+    targetPanY = ch * 0.2; // Cognitive era band center
+    zoom = targetZoom;
+    panX = targetPanX;
+    panY = targetPanY;
+    isEasing = false;
+    // Recalculate node positions
+    timelineNodes = timelineNodes.map(node => {
+      const x = yearToX(node.year);
+      const offset = nodeYOffset(node.id);
+      const eraIndex = ERA_COLORS.indexOf(node.era);
+      const bandHeight = ch / 5;
+      const bandTop = ch * 0.1 + eraIndex * bandHeight;
+      const y = bandTop + bandHeight * 0.3 + offset * bandHeight * 0.4;
+      return { ...node, x, y };
+    });
+  }
+  
+  // --- Draw: Background ---
+  function drawBackground() {
+    const grad = ctx.createLinearGradient(0, 0, 0, ch);
+    grad.addColorStop(0, css('--bg-deep'));
+    grad.addColorStop(0.5, css('--bg-mid'));
+    grad.addColorStop(1, css('--bg-deep'));
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, cw, ch);
+  }
+  
+  // --- Draw: Stars ---
+  function drawStars(stars, alpha, twinkle = false) {
+    for (const s of stars) {
+      let a = s.brightness * alpha;
+      if (twinkle) {
+        a *= 0.5 + 0.5 * Math.sin(time * s.twinkleSpeed * 60 + s.phase);
+      }
+      // Skip if off screen in viewport (approximate culling)
+      // Not doing culling yet — will add later with zoom/pan
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      
+      if (s.r > 1.5 && s.hue) {
+        ctx.shadowBlur = s.r * 3;
+        ctx.shadowColor = s.hue;
+      }
+      
+      const white = 'rgba(230, 237, 243, ' + a + ')';
+      if (s.hue && s.hue !== css('--star-white')) {
+        ctx.fillStyle = s.hue.replace('rgb', 'rgba').replace(')', ', ' + a + ')');
+      } else {
+        ctx.fillStyle = white;
+      }
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  }
+  
+  function updateNearStars() {
+    for (const s of starsNear) {
+      s.x += s.vx;
+      s.y += s.vy;
+      if (s.x < 0) s.x += cw;
+      if (s.x > cw) s.x -= cw;
+      if (s.y < 0) s.y += ch;
+      if (s.y > ch) s.y -= ch;
+    }
+  }
+  
+  // --- Draw: Era Nebulae ---
+  function drawNebulae() {
+    if (!timelineLoaded) return;
+    
+    const eras = [
+      { color: css('--era-cognitive'), x1: yearToX(TIME_MIN), x2: yearToX(-12000) },
+      { color: css('--era-agricultural'), x1: yearToX(-12000), x2: yearToX(-500) },
+      { color: css('--era-unification'), x1: yearToX(-500), x2: yearToX(1500) },
+      { color: css('--era-scientific'), x1: yearToX(1500), x2: yearToX(TIME_MAX) }
+    ];
+    
+    for (const era of eras) {
+      const cx = (era.x1 + era.x2) / 2;
+      const rx = (era.x2 - era.x1) / 2;
+      const cy = ch / 2;
+      const ry = ch * 0.35;
+      
+      const grad = ctx.createRadialGradient(cx, cy, rx * 0.1, cx, cy, Math.max(rx, ry));
+      grad.addColorStop(0, era.color.replace(')', ', 0.08)').replace('rgb', 'rgba'));
+      grad.addColorStop(1, 'rgba(8, 13, 22, 0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(era.x1, ch * 0.05, era.x2 - era.x1, ch * 0.9);
+    }
+  }
+  
+  // --- Draw: Constellation lines ---
+  function drawConstellationLines() {
+    if (!timelineLoaded || zoom < 1.5) return;
+    
+    ctx.strokeStyle = 'rgba(212, 168, 83, 0.12)';
+    ctx.lineWidth = 0.5;
+    
+    // Draw lines between consecutive nodes within each era
+    const byEra = {};
+    for (const node of timelineNodes) {
+      if (!byEra[node.era]) byEra[node.era] = [];
+      byEra[node.era].push(node);
+    }
+    
+    for (const era of Object.values(byEra)) {
+      era.sort((a, b) => a.year - b.year);
+      for (let i = 1; i < era.length; i++) {
+        ctx.beginPath();
+        ctx.moveTo(era[i - 1].x, era[i - 1].y);
+        ctx.lineTo(era[i].x, era[i].y);
+        ctx.stroke();
+      }
+    }
+  }
+  
+  // --- Draw: Timeline Nodes ---
+  function drawNodes() {
+    if (!timelineLoaded) return;
+    
+    // Reset hover state
+    hoveredNodeIndex = -1;
+    canvas.style.cursor = isDragging ? 'grabbing' : 'grab';
+    
+    for (const node of timelineNodes) {
+      // Visibility based on significance and zoom level
+      if (node.significance === 'minor' && zoom < 1.5) continue;
+      if (node.significance === 'major' && zoom < 0.5) continue;
+      
+      const baseR = node.significance === 'key' ? 8 : node.significance === 'major' ? 5 : 3;
+      const r = baseR;
+      const pulseScale = node.significance === 'key' ? (1 + 0.3 * Math.sin(time * 0.002 + node.x * 0.01)) : 1;
+      
+      // Glow
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, r * 5 * pulseScale, 0, Math.PI * 2);
+      const glowGrad = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, r * 5 * pulseScale);
+      glowGrad.addColorStop(0, 'rgba(212, 168, 83, 0.6)');
+      glowGrad.addColorStop(1, 'rgba(212, 168, 83, 0)');
+      ctx.fillStyle = glowGrad;
+      ctx.fill();
+      
+      // Core
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, r * pulseScale, 0, Math.PI * 2);
+      ctx.fillStyle = node.significance === 'key' ? css('--gold') : css('--star-white');
+      ctx.shadowBlur = r * 4 * pulseScale;
+      ctx.shadowColor = node.significance === 'key' ? css('--gold') : 'rgba(230, 237, 243, 0.5)';
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      
+      // Title text (only at high zoom)
+      if (zoom > 2.5) {
+        ctx.fillStyle = 'rgba(230, 237, 243, 0.7)';
+        ctx.font = '9px "Noto Sans SC", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(node.titleZh, node.x, node.y - r - 6);
+      }
+      
+      // Hover glow
+      const dx = mouseCanvasX - node.x;
+      const dy = mouseCanvasY - node.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 15 / zoom) {
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, r * 6, 0, Math.PI * 2);
+        const hoverGlow = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, r * 6);
+        hoverGlow.addColorStop(0, 'rgba(212, 168, 83, 0.5)');
+        hoverGlow.addColorStop(1, 'rgba(212, 168, 83, 0)');
+        ctx.fillStyle = hoverGlow;
+        ctx.fill();
+        hoveredNodeIndex = timelineNodes.indexOf(node);
+        canvas.style.cursor = 'pointer';
+      }
+    }
+  }
+  
+  // --- Draw: Era labels on canvas ---
+  function drawEraLabels() {
+    if (!timelineLoaded) return;
+    
+    const eras = [
+      { era: 'cognitive', color: css('--era-cognitive'), x1: yearToX(TIME_MIN), x2: yearToX(-12000) },
+      { era: 'agricultural', color: css('--era-agricultural'), x1: yearToX(-12000), x2: yearToX(-500) },
+      { era: 'unification', color: css('--era-unification'), x1: yearToX(-500), x2: yearToX(1500) },
+      { era: 'scientific', color: css('--era-scientific'), x1: yearToX(1500), x2: yearToX(TIME_MAX) }
+    ];
+    
+    ctx.textAlign = 'center';
+    ctx.font = 'bold 20px "Noto Serif SC", serif';
+    
+    for (const era of eras) {
+      const cx = (era.x1 + era.x2) / 2;
+      const alpha = 0.35;
+      ctx.fillStyle = era.color.replace('rgb', 'rgba').replace(')', ', ' + alpha + ')');
+      ctx.fillText(ERA_NAMES_ZH[era.era], cx, ch * 0.06);
+    }
+  }
+  
+  // --- Render loop ---
+  function render(timestamp) {
+    time = timestamp;
+    
+    // Apply easing for smooth zoom/pan transitions
+    if (isEasing) {
+      zoom += (targetZoom - zoom) * EASE_SPEED;
+      panX += (targetPanX - panX) * EASE_SPEED;
+      panY += (targetPanY - panY) * EASE_SPEED;
+      if (Math.abs(targetZoom - zoom) < 0.001 && 
+          Math.abs(targetPanX - panX) < 0.5 && 
+          Math.abs(targetPanY - panY) < 0.5) {
+        zoom = targetZoom;
+        panX = targetPanX;
+        panY = targetPanY;
+        isEasing = false;
+      }
+    }
+    
+    // Apply zoom/pan transform
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    const dpr = window.devicePixelRatio || 1;
+    ctx.scale(dpr, dpr);
+    
+    // Viewport-based transform
+    ctx.translate(width / 2, height / 2);
+    ctx.scale(zoom, zoom);
+    ctx.translate(-panX, -panY);
+    
+    // Clear visible area
+    const clearW = width / zoom + 200;
+    const clearH = height / zoom + 200;
+    ctx.clearRect(panX - clearW/2, panY - clearH/2, clearW, clearH);
+    
+    drawBackground();
+    drawNebulae();
+    drawStars(starsFar, 0.5, false);
+    drawStars(starsMid, 0.8, true);
+    updateNearStars();
+    drawStars(starsNear, 1.0, false);
+    drawConstellationLines();
+    drawNodes();
+    drawEraLabels();
+    
+    // Title (scaled with zoom so it shrinks when zoomed out)
+    ctx.fillStyle = 'rgba(230, 237, 243, 0.06)';
+    ctx.font = Math.min(width, height) * 0.018 / zoom + 'px "Noto Serif SC", serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('人 类 简 史', cw / 2, ch * 1.5);
+    ctx.fillStyle = 'rgba(230, 237, 243, 0.03)';
+    ctx.font = Math.min(width, height) * 0.012 / zoom + 'px "Inter", sans-serif';
+    ctx.fillText('SAPIENS', cw / 2, ch * 1.5 + Math.min(width, height) * 0.03 / zoom);
+    
+    updateMinimap();
+    updateScrubber();
+    
+    ctx.restore();
+    
+    animationId = requestAnimationFrame(render);
+  }
+  
+  // --- Start ---
+  function start() {
+    resize();
+    loadTimeline();
+    animationId = requestAnimationFrame(render);
+  }
+  
+  window.addEventListener('resize', resize);
+  start();
+  
+  // --- Interaction: Mouse/Touch zoom & pan ---
+  let isDragging = false;
+  let hasMoved = false;
+  let dragStartX = 0, dragStartY = 0;
+  let dragStartPanX = 0, dragStartPanY = 0;
+  let mouseCanvasX = 0, mouseCanvasY = 0;
+  let hoveredNodeIndex = -1;
+  
+  canvas.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    hasMoved = false;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    dragStartPanX = panX;
+    dragStartPanY = panY;
+    canvas.style.cursor = 'grabbing';
+  });
+  
+  window.addEventListener('mousemove', (e) => {
+    const pt = screenToCanvas(e.clientX, e.clientY);
+    mouseCanvasX = pt.x;
+    mouseCanvasY = pt.y;
+    if (!isDragging) return;
+    hasMoved = true;
+    panX = dragStartPanX - (e.clientX - dragStartX) / zoom;
+    panY = dragStartPanY - (e.clientY - dragStartY) / zoom;
+  });
+  
+  window.addEventListener('mouseup', () => {
+    isDragging = false;
+    canvas.style.cursor = 'grab';
+  });
+  
+  canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const oldZoom = zoom;
+    const delta = -e.deltaY * 0.001;
+    zoom = Math.max(0.3, Math.min(4, zoom * (1 + delta)));
+    
+    // Zoom towards mouse cursor
+    const mx = e.clientX - width / 2;
+    const my = e.clientY - height / 2;
+    panX += mx / oldZoom - mx / zoom;
+    panY += my / oldZoom - my / zoom;
+  }, { passive: false });
+  
+  // Touch support (pinch zoom)
+  let pinchStartDist = 0;
+  let pinchStartZoom = 1;
+  
+  canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    if (e.touches.length === 1) {
+      isDragging = true;
+      hasMoved = false;
+      dragStartX = e.touches[0].clientX;
+      dragStartY = e.touches[0].clientY;
+      dragStartPanX = panX;
+      dragStartPanY = panY;
+    } else if (e.touches.length === 2) {
+      isDragging = false;
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      pinchStartDist = Math.sqrt(dx*dx + dy*dy);
+      pinchStartZoom = zoom;
+    }
+  }, { passive: false });
+  
+  canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (e.touches.length === 1 && isDragging) {
+      hasMoved = true;
+      panX = dragStartPanX - (e.touches[0].clientX - dragStartX) / zoom;
+      panY = dragStartPanY - (e.touches[0].clientY - dragStartY) / zoom;
+    } else if (e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (pinchStartDist > 0) {
+        zoom = Math.max(0.3, Math.min(4, pinchStartZoom * dist / pinchStartDist));
+      }
+    }
+  }, { passive: false });
+  
+  canvas.addEventListener('touchend', () => {
+    isDragging = false;
+    pinchStartDist = 0;
+  });
+  
+  // --- Expose for later tasks ---
+  window.starfield = {
+    canvas, ctx,
+    getWidth: () => width, getHeight: () => height,
+    getCanvasWidth: () => cw, getCanvasHeight: () => ch,
+    stop: () => cancelAnimationFrame(animationId),
+    restart: () => { animationId = requestAnimationFrame(render); },
+    getZoom: () => zoom, setZoom: (z) => { zoom = Math.max(0.3, Math.min(4, z)); },
+    getPan: () => ({ x: panX, y: panY }),
+    setPan: (x, y) => { panX = x; panY = y; },
+    getNodes: () => timelineNodes,
+    getTimelineRange: () => ({ min: TIME_MIN, max: TIME_MAX }),
+    yearToX,
+    css
+  };
+
+  // ============================================================
+  // DETAIL CARD
+  // ============================================================
+
+  const detailCard = document.getElementById('detail-card');
+  const cardClose = detailCard.querySelector('.card-close');
+  const cardPrev = detailCard.querySelector('.card-prev');
+  const cardNext = detailCard.querySelector('.card-next');
+  let currentNodeIndex = -1;
+  let sortedNodes = [];
+
+  function screenToCanvas(sx, sy) {
+    return {
+      x: panX + (sx - width / 2) / zoom,
+      y: panY + (sy - height / 2) / zoom
+    };
+  }
+
+  function hitTest(cx, cy) {
+    if (!timelineLoaded) return -1;
+    const hitRadius = 12 / zoom; // 12px hit area in screen space
+    for (let i = 0; i < timelineNodes.length; i++) {
+      const node = timelineNodes[i];
+      // Visibility check
+      if (node.significance === 'minor' && zoom < 1.5) continue;
+      if (node.significance === 'major' && zoom < 0.5) continue;
+      const dx = node.x - cx;
+      const dy = node.y - cy;
+      if (Math.sqrt(dx * dx + dy * dy) < hitRadius) return i;
+    }
+    return -1;
+  }
+
+  function openCard(nodeIndex) {
+    if (nodeIndex < 0 || nodeIndex >= timelineNodes.length) return;
+    currentNodeIndex = nodeIndex;
+    const node = timelineNodes[nodeIndex];
+
+    // Era tag
+    const eraTag = detailCard.querySelector('.card-era-tag');
+    eraTag.textContent = { cognitive: '认知革命', agricultural: '农业革命',
+      unification: '融合统一', scientific: '科学革命' }[node.era];
+    eraTag.className = 'card-era-tag ' + node.era;
+
+    // Year
+    detailCard.querySelector('.card-year').textContent = node.yearDisplay;
+    detailCard.querySelector('.card-year-en').textContent = node.yearDisplayEn;
+
+    // Titles
+    detailCard.querySelector('.card-title-zh').textContent = node.titleZh;
+    detailCard.querySelector('.card-title-en').textContent = node.titleEn;
+
+    // Summaries
+    detailCard.querySelector('.card-summary-zh').textContent = node.summaryZh;
+    detailCard.querySelector('.card-summary-en').textContent = node.summaryEn;
+
+    // Details
+    detailCard.querySelector('.card-detail-zh').textContent = node.detailZh;
+    detailCard.querySelector('.card-detail-en').textContent = node.detailEn;
+
+    // Tags
+    const tagsContainer = detailCard.querySelector('.card-tags');
+    tagsContainer.innerHTML = '';
+    const zhTags = node.tags.filter(t => /[\u4e00-\u9fff]/.test(t));
+    for (const tag of zhTags.slice(0, 4)) {
+      const span = document.createElement('span');
+      span.textContent = tag;
+      tagsContainer.appendChild(span);
+    }
+
+    // Show
+    detailCard.classList.remove('hidden');
+
+    // Update nav button states
+    cardPrev.style.visibility = nodeIndex > 0 ? 'visible' : 'hidden';
+    cardNext.style.visibility = nodeIndex < timelineNodes.length - 1 ? 'visible' : 'hidden';
+
+    // Pan to center the node with easing
+    targetPanX = node.x;
+    targetPanY = node.y;
+    isEasing = true;
+  }
+
+  function closeCard() {
+    detailCard.classList.add('hidden');
+    currentNodeIndex = -1;
+  }
+
+  function navigateCard(dir) {
+    if (!timelineLoaded) return;
+    if (sortedNodes.length === 0) {
+      sortedNodes = [...timelineNodes].sort((a, b) => a.year - b.year);
+    }
+    const currentId = timelineNodes[currentNodeIndex]?.id;
+    if (!currentId) return;
+    const sortedIdx = sortedNodes.findIndex(n => n.id === currentId);
+    const newSortedIdx = sortedIdx + dir;
+    if (newSortedIdx < 0 || newSortedIdx >= sortedNodes.length) return;
+    const newId = sortedNodes[newSortedIdx].id;
+    const newIdx = timelineNodes.findIndex(n => n.id === newId);
+    if (newIdx >= 0) openCard(newIdx);
+  }
+
+  // Click handler on canvas
+  canvas.addEventListener('click', (e) => {
+    // Don't process click if we were dragging
+    if (hasMoved) {
+      hasMoved = false;
+      return;
+    }
+
+    const pt = screenToCanvas(e.clientX, e.clientY);
+    const idx = hitTest(pt.x, pt.y);
+    if (idx >= 0) {
+      openCard(idx);
+    } else if (!detailCard.classList.contains('hidden')) {
+      closeCard();
+    }
+  });
+
+  // Close button
+  cardClose.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeCard();
+  });
+
+  // Nav buttons
+  cardPrev.addEventListener('click', (e) => {
+    e.stopPropagation();
+    navigateCard(-1);
+  });
+
+  cardNext.addEventListener('click', (e) => {
+    e.stopPropagation();
+    navigateCard(1);
+  });
+
+  // Click outside card
+  detailCard.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+
+  // ESC to close, Arrow keys to navigate, 0-4 for era jump & reset
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !detailCard.classList.contains('hidden')) {
+      closeCard();
+    }
+    if (!detailCard.classList.contains('hidden')) {
+      if (e.key === 'ArrowLeft') navigateCard(-1);
+      if (e.key === 'ArrowRight') navigateCard(1);
+    }
+    // Era jump: keys 1-4
+    if (e.key === '1') jumpToEra('cognitive');
+    if (e.key === '2') jumpToEra('agricultural');
+    if (e.key === '3') jumpToEra('unification');
+    if (e.key === '4') jumpToEra('scientific');
+    if (e.key === '0') { targetZoom = 1.5; targetPanX = yearToX(-70000); targetPanY = ch * 0.2; isEasing = true; }
+  });
+
+  function jumpToEra(era) {
+    const bounds = eraBounds[era];
+    if (!bounds) return;
+    const cx = (yearToX(bounds.start) + yearToX(bounds.end)) / 2;
+    const eraWidth = yearToX(bounds.end) - yearToX(bounds.start);
+    const eraIndex = ERA_COLORS.indexOf(era);
+    const bandHeight = ch / 5;
+    const eraCenterY = ch * 0.1 + bandHeight * (eraIndex + 0.5);
+    targetZoom = Math.max(0.5, Math.min(1.5, width / eraWidth));
+    targetPanX = cx;
+    targetPanY = eraCenterY;
+    isEasing = true;
+  }
+
+// ============================================================
+  // ERA LABEL BUTTONS
+  // ============================================================
+  
+  const eraBounds = {
+    cognitive: { start: TIME_MIN, end: -12000 },
+    agricultural: { start: -12000, end: -500 },
+    unification: { start: -500, end: 1500 },
+    scientific: { start: 1500, end: TIME_MAX }
+  };
+  
+  document.querySelectorAll('.era-tag').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const era = btn.dataset.era;
+      jumpToEra(era);
+    });
+  });
+  
+  // ============================================================
+  // MINIMAP
+  // ============================================================
+  
+  const minimapCanvas = document.getElementById('minimap-canvas');
+  const minimapCtx = minimapCanvas.getContext('2d');
+  const minimapViewport = document.getElementById('minimap-viewport');
+  const MINIMAP_W = 240, MINIMAP_H = 72;
+  
+  function updateMinimap() {
+    if (!timelineLoaded) return;
+    
+    minimapCtx.clearRect(0, 0, MINIMAP_W, MINIMAP_H);
+    
+    // Draw era segments
+    const eras = [
+      { color: '#7B9EBD', start: TIME_MIN, end: -12000 },
+      { color: '#C4956A', start: -12000, end: -500 },
+      { color: '#8B6B9E', start: -500, end: 1500 },
+      { color: '#5FA8B4', start: 1500, end: TIME_MAX }
+    ];
+    
+    for (const era of eras) {
+      const x = (era.start - TIME_MIN) / (TIME_MAX - TIME_MIN) * MINIMAP_W;
+      const w = (era.end - era.start) / (TIME_MAX - TIME_MIN) * MINIMAP_W;
+      minimapCtx.fillStyle = era.color;
+      minimapCtx.fillRect(x, 0, w, MINIMAP_H);
+    }
+    
+    // Draw viewport indicator
+    // Convert panX (canvas px) to year, then to fraction on minimap
+    const yearAtCenter = TIME_MIN + ((panX - cw * 0.1) / (cw * 0.8)) * (TIME_MAX - TIME_MIN);
+    const halfViewYears = (width / 2 / zoom) / (cw * 0.8) * (TIME_MAX - TIME_MIN);
+    const viewYearLeft = Math.max(TIME_MIN, yearAtCenter - halfViewYears);
+    const viewYearRight = Math.min(TIME_MAX, yearAtCenter + halfViewYears);
+    const vxFrac = (viewYearLeft - TIME_MIN) / (TIME_MAX - TIME_MIN);
+    const vwFrac = (viewYearRight - viewYearLeft) / (TIME_MAX - TIME_MIN);
+    const vx = vxFrac * MINIMAP_W;
+    const vw = vwFrac * MINIMAP_W;
+    
+    minimapViewport.style.left = Math.max(0, vx) + 'px';
+    minimapViewport.style.top = '0px';
+    minimapViewport.style.width = Math.min(MINIMAP_W - vx, vw) + 'px';
+    minimapViewport.style.height = MINIMAP_H + 'px';
+  }
+  
+  // Minimap click/drag to navigate
+  minimapCanvas.addEventListener('mousedown', (e) => {
+    const rect = minimapCanvas.getBoundingClientRect();
+    const frac = (e.clientX - rect.left) / MINIMAP_W;
+    const targetYear = TIME_MIN + frac * (TIME_MAX - TIME_MIN);
+    panX = yearToX(targetYear);
+    
+    const onMove = (ev) => {
+      const f = (ev.clientX - rect.left) / MINIMAP_W;
+      panX = yearToX(TIME_MIN + f * (TIME_MAX - TIME_MIN));
+    };
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  });
+  
+  // ============================================================
+  // SCRUBBER
+  // ============================================================
+  
+  const scrubber = document.getElementById('scrubber');
+  const scrubberThumb = scrubber.querySelector('.scrubber-thumb');
+  const scrubberIndicator = scrubber.querySelector('.scrubber-viewport-indicator');
+  const scrubberTrack = scrubber.querySelector('.scrubber-track');
+  
+  function updateScrubber() {
+    if (!timelineLoaded) return;
+    
+    const trackWidth = scrubberTrack.clientWidth;
+    
+    // Viewport indicator
+    const yearAtCenter = TIME_MIN + ((panX - cw * 0.1) / (cw * 0.8)) * (TIME_MAX - TIME_MIN);
+    const halfViewYears = (width / 2 / zoom) / (cw * 0.8) * (TIME_MAX - TIME_MIN);
+    const viewYearLeft = Math.max(TIME_MIN, yearAtCenter - halfViewYears);
+    const viewYearRight = Math.min(TIME_MAX, yearAtCenter + halfViewYears);
+    const viewLeftFrac = (viewYearLeft - TIME_MIN) / (TIME_MAX - TIME_MIN);
+    const viewWidthFrac = (viewYearRight - viewYearLeft) / (TIME_MAX - TIME_MIN);
+    scrubberIndicator.style.left = (viewLeftFrac * 100) + '%';
+    scrubberIndicator.style.width = (Math.max(0.5, viewWidthFrac) * 100) + '%';
+    
+    // Thumb position: convert panX (canvas coords) to year, then to fraction
+    const yearAtPan = TIME_MIN + ((panX - cw * 0.1) / (cw * 0.8)) * (TIME_MAX - TIME_MIN);
+    const frac = (yearAtPan - TIME_MIN) / (TIME_MAX - TIME_MIN);
+    scrubberThumb.style.left = (Math.max(0, Math.min(1, frac)) * 100) + '%';
+  }
+  
+  // Scrubber drag
+  let scrubDragging = false;
+  
+  scrubberThumb.addEventListener('mousedown', (e) => {
+    e.stopPropagation();
+    scrubDragging = true;
+    
+    const onMove = (ev) => {
+      if (!scrubDragging) return;
+      const rect = scrubberTrack.getBoundingClientRect();
+      const frac = Math.max(0, Math.min(1, (ev.clientX - rect.left) / rect.width));
+      const targetYear = TIME_MIN + frac * (TIME_MAX - TIME_MIN);
+      panX = yearToX(targetYear);
+    };
+    const onUp = () => {
+      scrubDragging = false;
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  });
+  
+  // Click on scrubber track
+  scrubberTrack.addEventListener('mousedown', (e) => {
+    if (e.target === scrubberThumb) return;
+    const rect = scrubberTrack.getBoundingClientRect();
+    const frac = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    panX = yearToX(TIME_MIN + frac * (TIME_MAX - TIME_MIN));
+  });
+
+})();
+  </script>
+</body>
+</html>
