@@ -1,12 +1,17 @@
-# Sapiens Timeline
+# 人类简史 · 编年史 — Sapiens, An Illuminated Codex
 
-An interactive single-page timeline website for **"Sapiens: A Brief History of Humankind"** (人类简史) by Yuval Noah Harari. Explore the journey of humankind through a dark star-chart interface — zoom and pan across the ages as if navigating a celestial map.
+An interactive single-page chronicle of **"Sapiens: A Brief History of Humankind"** (人类简史) by Yuval Noah Harari. The site reads like an antique illuminated manuscript: you scroll *down through the leaves* of a printed codex, era by era, from the Cognitive Revolution to the age of AI. Bilingual throughout (中文 / English).
 
 ## Visual Style
 
-- **Dark star-chart aesthetic**: deep space blue-black background with drifting star particles
-- **Gold accents** highlighting key eras and milestones
-- **Canvas 2D** rendering for smooth zooming and panning across time
+A classical printed-atlas aesthetic — *古典书籍质感* — fused with refined modern interaction:
+
+- **Parchment & ink**: a warm aged-paper ground with grain and an edge vignette; text set in deep bistre ink, never pure black.
+- **Pigment palette**: cinnabar (朱砂) seals and rules; antique gold leaf for ornament and the reading-progress spine. Each of the four eras carries a historical pigment — woad indigo (Cognitive), terre verte (Agricultural), Tyrian purple (Unification), verdigris (Scientific).
+- **Letterpress typography**: Noto Serif SC (思源宋体) for Chinese, Cormorant Garamond & EB Garamond for English display/body, Spline Sans Mono for marginal years and labels. Drop caps, fleurons, Roman numerals, and small-caps running heads.
+- **The codex spine**: a continuous ruled thread down the page whose gold fill tracks your reading position; events are nodes upon it — a cinnabar seal for *keystone* moments, a gold ring for *major*, plain ink for the rest.
+- **Engraved frontispiece**: a hand-built armillary-sphere ornament, a double-rule frame with corner fleurons, and a cinnabar 「史」 seal.
+- **Interaction**: scroll-revealed entries, a folio-style detail overlay (with era-tinted drop caps and a per-era seal), an active table-of-contents in the top bar, and a 双 / 中 / EN language toggle. Honors `prefers-reduced-motion`.
 
 ## How to Run
 
@@ -60,18 +65,25 @@ Timeline nodes are stored in `data/timeline.json`. Each node uses the following 
 
 ## Adding New Timeline Nodes
 
-1. Open `data/timeline.json`
-2. Add a new JSON object to the array following the schema above
-3. Ensure `year` is numeric (use negative numbers for BCE dates)
-4. Refresh the page — the node will appear on the timeline automatically
+`data/timeline.json` is the canonical source of the data. For zero-config `file://` use, `index.html` carries an **inlined copy** of that array (assigned to `TIMELINE_DATA`). To add or edit an event:
 
-The timeline canvas auto-sorts nodes by their `year` value and places them along the chronological axis.
+1. Edit the object in `data/timeline.json` following the schema above (use negative `year` for BCE).
+2. Re-inline it into `index.html` so the live page picks it up:
+
+   ```powershell
+   $json = (Get-Content -Raw -Encoding UTF8 data/timeline.json).Trim()
+   $html = Get-Content -Raw -Encoding UTF8 index.html
+   $html = $html -replace '(?s)(const TIMELINE_DATA = )\[.*?\](;)', ('$1' + [regex]::Escape($json) + '$2')
+   [IO.File]::WriteAllText("$PWD/index.html", $html, (New-Object Text.UTF8Encoding $false))
+   ```
+
+3. Refresh the page. Events are grouped into the four eras (by their `era` field) and sorted by `year` within each era; `significance` (`key` / `major` / `minor`) controls the node and heading treatment.
 
 ## Tech Stack
 
-- **Pure HTML, CSS, and JavaScript** — no frameworks, no build tools
-- **Canvas 2D API** for rendering the interactive star-chart timeline
-- **Google Fonts** for typography
+- **Pure HTML, CSS, and JavaScript** — no frameworks, no bundler. A single `index.html`.
+- **Scroll-driven UI**: `IntersectionObserver` reveals, a `requestAnimationFrame`-throttled scroll handler drives the progress thread, spine fill, and active table-of-contents.
+- **Google Fonts**: Noto Serif SC, Cormorant Garamond, EB Garamond, Spline Sans Mono.
 
 ## License
 
