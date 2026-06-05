@@ -12,6 +12,7 @@ A classical printed-atlas aesthetic — *古典书籍质感* — fused with refi
 - **The codex spine**: a continuous ruled thread down the page whose gold fill tracks your reading position; events are nodes upon it — a cinnabar seal for *keystone* moments, a gold ring for *major*, plain ink for the rest.
 - **Engraved frontispiece**: a hand-built armillary-sphere ornament, a double-rule frame with corner fleurons, and a cinnabar 「史」 seal.
 - **Interaction**: scroll-revealed entries, a folio-style detail overlay (with era-tinted drop caps and a per-era seal), an active table-of-contents in the top bar, and a 双 / 中 / EN language toggle. Honors `prefers-reduced-motion`.
+- **Dark starmap mode**: use the top-right `星图` switch to enter a polished zoomable constellation map with Canvas-rendered stars, era nebulae, minimap, drag/pinch-style navigation, wheel zoom, 1–4 era jumps, and click-to-open detail cards.
 
 ## How to Run
 
@@ -68,13 +69,19 @@ Timeline nodes are stored in `data/timeline.json`. Each node uses the following 
 `data/timeline.json` is the canonical source of the data. For zero-config `file://` use, `index.html` carries an **inlined copy** of that array (assigned to `TIMELINE_DATA`). To add or edit an event:
 
 1. Edit the object in `data/timeline.json` following the schema above (use negative `year` for BCE).
-2. Re-inline it into `index.html` so the live page picks it up:
+2. Re-inline it into `index.html` so the live page picks it up. Cross-platform Python version:
 
-   ```powershell
-   $json = (Get-Content -Raw -Encoding UTF8 data/timeline.json).Trim()
-   $html = Get-Content -Raw -Encoding UTF8 index.html
-   $html = $html -replace '(?s)(const TIMELINE_DATA = )\[.*?\](;)', ('$1' + [regex]::Escape($json) + '$2')
-   [IO.File]::WriteAllText("$PWD/index.html", $html, (New-Object Text.UTF8Encoding $false))
+   ```bash
+   python - <<'PY'
+   import json, re
+   from pathlib import Path
+   data = json.loads(Path('data/timeline.json').read_text(encoding='utf-8'))
+   html = Path('index.html').read_text(encoding='utf-8')
+   html = re.sub(r'const TIMELINE_DATA = \[.*?\];',
+                 'const TIMELINE_DATA = ' + json.dumps(data, ensure_ascii=False, indent=2) + ';',
+                 html, flags=re.S)
+   Path('index.html').write_text(html, encoding='utf-8')
+   PY
    ```
 
 3. Refresh the page. Events are grouped into the four eras (by their `era` field) and sorted by `year` within each era; `significance` (`key` / `major` / `minor`) controls the node and heading treatment.

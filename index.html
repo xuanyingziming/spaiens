@@ -94,7 +94,9 @@ body{
   background:linear-gradient(90deg,var(--gold-bright),var(--gold) 55%,var(--cinnabar));
   box-shadow:0 0 6px rgba(160,43,31,.35)}
 
-::selection{background:rgba(160,43,31,.18);color:var(--ink-0)}
+::selection{background:rgba(120,63,28,.24);color:var(--ink-0)}
+body.mode-starmap ::selection{background:rgba(138,215,255,.28);color:#f8fbff;text-shadow:none}
+body.mode-starmap ::-moz-selection{background:rgba(138,215,255,.28);color:#f8fbff;text-shadow:none}
 
 /* — Themed scrollbar — */
 html{scrollbar-width:thin;scrollbar-color:var(--paper-edge) transparent}
@@ -131,10 +133,12 @@ body.scrolled .topbar{transform:none}
 .seal-mini{
   display:grid;place-items:center;width:30px;height:30px;flex:0 0 auto;
   background:var(--cinnabar);color:var(--paper-0);
-  font-family:var(--serif-zh);font-weight:700;font-size:18px;line-height:1;
   border-radius:5px;
   box-shadow:inset 0 0 0 1.5px rgba(239,230,209,.35),0 1px 2px rgba(60,30,10,.3);
   transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.seal-mini svg{width:23px;height:23px;display:block;overflow:visible}
+.logo-orbit,.logo-link{fill:none;stroke:currentColor;stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round;opacity:.92}
+.logo-orbit-tilt{opacity:.55}.logo-link{opacity:.42;stroke-width:1}.logo-node{fill:currentColor}.logo-node-core{filter:drop-shadow(0 0 4px currentColor)}
 .brand:hover .seal-mini{transform:rotate(-6deg) scale(1.05)}
 .brand-zh{font-family:var(--serif-zh);font-weight:500;font-size:17px;letter-spacing:.12em}
 .brand-en{font-family:var(--display-en);font-style:italic;font-size:15px;color:var(--ink-2);letter-spacing:.04em}
@@ -499,6 +503,94 @@ body.scrolled .topbar{transform:none}
   .fp-anim>*{opacity:1!important}
   .plate::before,.plate::after,.corner,.fp-scroll{opacity:1!important;clip-path:none!important}
 }
+
+
+/* ============================================================
+   STARMAP MODE — modern dark constellation explorer
+   ============================================================ */
+.mode-toggle{display:flex;align-items:center;border:1px solid var(--rule);border-radius:999px;overflow:hidden;flex:0 0 auto;background:rgba(255,255,255,.12)}
+.mode-toggle button{appearance:none;border:0;background:transparent;cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--ink-2);padding:7px 11px;transition:background .25s,color .25s,box-shadow .25s}
+.mode-toggle button+button{border-left:1px solid var(--rule)}
+.mode-toggle button:hover{color:var(--ink-0)}
+.mode-toggle button.is-active{background:var(--ink-0);color:var(--paper-0);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+
+.starmap-app{position:fixed;inset:0;z-index:700;background:#080d16;color:#e6edf3;overflow:hidden;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .45s ease,visibility .45s}
+body.mode-starmap{
+  overflow:hidden;background:#080d16;color:#e6edf3;
+  --cinnabar:#8ad7ff;
+  --cinnabar-deep:#5fbce7;
+  --gold:#8ad7ff;
+  --gold-bright:#b7e8ff;
+  --era-agricultural:#72b7c8;
+}
+body.mode-starmap .starmap-app{opacity:1;visibility:visible;pointer-events:auto}
+body.mode-starmap .frontispiece,body.mode-starmap .preface,body.mode-starmap .chronicle,body.mode-starmap .colophon{display:none}
+body.mode-starmap .grain{opacity:.18;mix-blend-mode:screen}
+body.mode-starmap .vignette{background:radial-gradient(100% 90% at 50% 46%,transparent 44%,rgba(3,6,12,.45) 76%,rgba(0,0,0,.78) 100%)}
+body.mode-starmap .progress{display:none}
+body.mode-starmap{scrollbar-width:thin;scrollbar-color:rgba(138,215,255,.44) rgba(4,8,16,.92)}
+body.mode-starmap::-webkit-scrollbar{width:10px}
+body.mode-starmap::-webkit-scrollbar-track{background:linear-gradient(180deg,#040812,#0a1322 48%,#040812)}
+body.mode-starmap::-webkit-scrollbar-thumb{background:linear-gradient(180deg,rgba(138,215,255,.46),rgba(114,183,200,.34));border:2px solid #050a14;border-radius:999px;box-shadow:inset 0 0 0 1px rgba(230,237,243,.13),0 0 14px rgba(138,215,255,.18)}
+body.mode-starmap::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,rgba(138,215,255,.68),rgba(114,183,200,.52))}
+body.mode-starmap .topbar{transform:none;background:linear-gradient(180deg,rgba(6,10,18,.96),rgba(8,13,23,.88));border-bottom:1px solid rgba(148,163,184,.18);box-shadow:0 12px 38px rgba(0,0,0,.42),inset 0 -1px 0 rgba(255,255,255,.035);backdrop-filter:blur(22px) saturate(1.08);-webkit-backdrop-filter:blur(22px) saturate(1.08);color:#e6edf3}
+body.mode-starmap .topbar::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:rgba(255,255,255,.055)}
+body.mode-starmap .topbar::after{bottom:0;height:1px;background:linear-gradient(90deg,transparent,rgba(138,215,255,.22),transparent)}
+body.mode-starmap .brand-zh,body.mode-starmap .eranav a,body.mode-starmap .langtoggle button,body.mode-starmap .mode-toggle button{color:rgba(226,234,244,.76)}
+body.mode-starmap .brand-en,body.mode-starmap .eranav a i{color:rgba(148,163,184,.68)}
+body.mode-starmap .brand:hover .brand-zh,body.mode-starmap .eranav a:hover{color:#f8fbff}
+body.mode-starmap .seal-mini{background:rgba(12,18,30,.82);color:#8ad7ff;border:1px solid rgba(138,215,255,.28);border-radius:999px;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 18px rgba(0,0,0,.24),0 0 22px rgba(138,215,255,.09)}
+body.mode-starmap .seal-mini .logo-orbit-main{opacity:.88}
+body.mode-starmap .seal-mini .logo-orbit-tilt{opacity:.48}
+body.mode-starmap .seal-mini .logo-link{opacity:.34}
+body.mode-starmap .seal-mini .logo-node-core{fill:#b7e8ff;filter:drop-shadow(0 0 5px rgba(138,215,255,.5))}
+body.mode-starmap .langtoggle button.is-active,body.mode-starmap .mode-toggle button.is-active{background:rgba(138,215,255,.12);color:#f8fbff;box-shadow:inset 0 0 0 1px rgba(138,215,255,.24),0 0 18px rgba(138,215,255,.08)}
+body.mode-starmap .langtoggle,body.mode-starmap .mode-toggle{border-color:rgba(148,163,184,.2);background:rgba(4,8,16,.46);box-shadow:inset 0 1px 0 rgba(255,255,255,.045)}
+body.mode-starmap .langtoggle button+button,body.mode-starmap .mode-toggle button+button{border-left-color:rgba(148,163,184,.16)}
+body.mode-starmap .eranav a.is-active,body.mode-starmap .eranav a:hover{color:#fff}
+body.mode-starmap .eranav a::after{background:#8ad7ff;box-shadow:0 0 10px rgba(138,215,255,.35)}
+
+.starmap-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;background:radial-gradient(circle at 22% 14%,rgba(138,215,255,.14),transparent 32%),radial-gradient(circle at 74% 72%,rgba(167,139,250,.13),transparent 34%),linear-gradient(180deg,#080d16 0%,#0b1322 58%,#060911 100%)}
+.starmap-hud{position:absolute;left:clamp(18px,4vw,46px);top:calc(var(--bar-h) + clamp(20px,5vh,44px));width:min(430px,calc(100vw - 36px));padding:22px 24px;border:1px solid rgba(230,237,243,.14);border-radius:24px;background:linear-gradient(135deg,rgba(10,18,32,.72),rgba(10,18,32,.38));box-shadow:0 24px 80px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.08);backdrop-filter:blur(22px) saturate(1.25);-webkit-backdrop-filter:blur(22px) saturate(1.25)}
+.starmap-kicker{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:rgba(138,215,255,.72);margin-bottom:12px}
+.starmap-title{font-family:var(--serif-zh);font-size:clamp(30px,5vw,54px);line-height:1.02;letter-spacing:.08em;color:#f8fbff;text-shadow:0 0 26px rgba(138,215,255,.2)}
+.starmap-title .en{display:block;font-family:var(--display-en);font-style:italic;font-size:.52em;letter-spacing:.02em;color:#8ad7ff;margin-top:7px}
+.lang-en .starmap-title .zh{display:none}.lang-en .starmap-title .en{font-size:.82em;font-style:normal;color:#f8fbff}
+.starmap-copy{margin-top:14px;color:rgba(230,237,243,.74);font-size:14px;line-height:1.85;max-width:37em}.starmap-copy .en{display:block;font-family:var(--serif-en);font-style:italic;color:rgba(230,237,243,.58);margin-top:6px}.lang-en .starmap-copy .zh{display:none}.lang-zh .starmap-copy .en{display:none}
+.starmap-help{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:18px;font-family:var(--mono);font-size:10.5px;color:rgba(230,237,243,.56);letter-spacing:.04em}.starmap-help span{padding:7px 9px;border:1px solid rgba(230,237,243,.1);border-radius:999px;background:rgba(255,255,255,.035)}
+.starmap-controls{position:absolute;right:clamp(14px,3vw,34px);bottom:clamp(16px,4vh,34px);display:flex;gap:10px;align-items:center;padding:10px;border:1px solid rgba(230,237,243,.12);border-radius:999px;background:rgba(7,13,24,.56);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 18px 50px rgba(0,0,0,.32)}
+.starmap-controls button{width:38px;height:38px;border-radius:50%;border:1px solid rgba(230,237,243,.14);background:rgba(255,255,255,.055);color:#e6edf3;cursor:pointer;font-family:var(--mono);font-size:18px;transition:transform .2s,background .2s,border-color .2s}.starmap-controls button:hover{transform:translateY(-1px);background:rgba(138,215,255,.13);border-color:rgba(138,215,255,.34)}
+.starmap-readout{position:absolute;left:clamp(18px,4vw,46px);bottom:clamp(18px,4vh,36px);font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:rgba(226,234,244,.62);padding:10px 13px;border:1px solid rgba(148,163,184,.16);border-radius:999px;background:rgba(6,11,20,.5);backdrop-filter:blur(14px)}
+.starmap-tip{position:absolute;pointer-events:none;min-width:190px;max-width:300px;padding:12px 14px;border-radius:16px;background:rgba(9,16,28,.86);border:1px solid rgba(230,237,243,.14);box-shadow:0 18px 48px rgba(0,0,0,.38);backdrop-filter:blur(18px);transform:translate(16px,16px);opacity:0;transition:opacity .16s;color:#e6edf3}.starmap-tip.show{opacity:1}.starmap-tip .year{font-family:var(--mono);font-size:10px;color:rgba(138,215,255,.7);letter-spacing:.1em}.starmap-tip .name{font-family:var(--serif-zh);font-size:17px;line-height:1.28;margin-top:5px}.starmap-tip .name .en{display:block;font-family:var(--display-en);font-style:italic;font-size:.78em;color:rgba(230,237,243,.66)}.lang-en .starmap-tip .name .zh{display:none}.lang-zh .starmap-tip .name .en{display:none}
+.starmap-minimap{position:absolute;right:clamp(14px,3vw,34px);top:calc(var(--bar-h) + 24px);width:174px;height:108px;border:1px solid rgba(230,237,243,.13);border-radius:18px;background:rgba(7,13,24,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.06);backdrop-filter:blur(16px);overflow:hidden}.starmap-minimap canvas{width:100%;height:100%;display:block}.starmap-minimap span{position:absolute;left:12px;top:9px;font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:rgba(230,237,243,.48);text-transform:uppercase}
+
+
+/* Starmap detail dialog: switch the reused folio from parchment to orbital glass. */
+body.mode-starmap .folio-scrim{background:radial-gradient(80% 70% at 50% 42%,rgba(36,63,110,.34),rgba(3,7,14,.72) 58%,rgba(0,0,0,.88) 100%);backdrop-filter:blur(16px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.2)}
+body.mode-starmap .folio{width:min(780px,94vw);background:linear-gradient(145deg,rgba(14,25,44,.94),rgba(7,12,22,.9) 58%,rgba(4,8,16,.96)),radial-gradient(120% 80% at 20% 0%,rgba(138,215,255,.13),transparent 50%);border:1px solid rgba(230,237,243,.16);box-shadow:0 32px 100px rgba(0,0,0,.62),0 0 0 1px rgba(138,215,255,.06),inset 0 1px 0 rgba(255,255,255,.08);border-radius:26px;color:#e6edf3}
+body.mode-starmap .folio::before{content:"";position:absolute;inset:0;border-radius:26px;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(138,215,255,.09),transparent);mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);padding:1px}
+body.mode-starmap .folio-inner{padding:clamp(32px,5vw,58px) clamp(24px,5vw,64px) clamp(28px,4vw,44px);scrollbar-width:thin;scrollbar-color:rgba(138,215,255,.34) rgba(4,8,16,.65)}
+body.mode-starmap .folio-inner::-webkit-scrollbar{width:9px}
+body.mode-starmap .folio-inner::-webkit-scrollbar-track{background:rgba(4,8,16,.55);border-radius:999px}
+body.mode-starmap .folio-inner::-webkit-scrollbar-thumb{background:linear-gradient(180deg,rgba(138,215,255,.4),rgba(114,183,200,.3));border:2px solid rgba(7,12,22,.96);border-radius:999px;box-shadow:inset 0 0 0 1px rgba(230,237,243,.09)}
+body.mode-starmap .folio-runhead{color:rgba(230,237,243,.52);border-bottom-color:rgba(230,237,243,.13)}
+body.mode-starmap .folio-runhead .era,body.mode-starmap .folio-title .en,body.mode-starmap .folio-text .dropcap{color:var(--era-color)}
+body.mode-starmap .folio-title,body.mode-starmap.lang-en .folio-title .en{color:#f8fbff;text-shadow:0 0 30px rgba(138,215,255,.12)}
+body.mode-starmap .folio-sub{color:rgba(230,237,243,.5)}
+body.mode-starmap .folio-sub b{color:#b7e8ff}
+body.mode-starmap .folio-orn{color:rgba(138,215,255,.56);letter-spacing:.72em}
+body.mode-starmap .folio-text p{color:rgba(230,237,243,.88);line-height:1.95}
+body.mode-starmap .folio-text .en,body.mode-starmap.lang-en .folio-text .en{color:rgba(230,237,243,.68)}
+body.mode-starmap .folio-foot{border-top-color:rgba(230,237,243,.13)}
+body.mode-starmap .folio-foot .seal{border-radius:50%;color:#07111f;background:linear-gradient(135deg,#b7e8ff,var(--era-color));box-shadow:0 0 24px color-mix(in srgb,var(--era-color) 30%,transparent)}
+body.mode-starmap .folio-foot .meta{color:rgba(230,237,243,.5)}
+body.mode-starmap .folio-foot .meta b{color:rgba(230,237,243,.8)}
+body.mode-starmap .folio-close{color:rgba(230,237,243,.68);background:rgba(255,255,255,.04);border-color:rgba(230,237,243,.1)}
+body.mode-starmap .folio-close:hover{color:#fff;border-color:rgba(138,215,255,.36);background:rgba(138,215,255,.1)}
+body.mode-starmap .folio-nav{background:rgba(10,18,32,.72);border-color:rgba(230,237,243,.14);color:rgba(230,237,243,.72);box-shadow:0 14px 40px rgba(0,0,0,.3)}
+body.mode-starmap .folio-nav:hover{background:rgba(138,215,255,.12);border-color:rgba(138,215,255,.36);color:#fff}
+@media(max-width:760px){.mode-toggle{order:3}.mode-toggle button{padding:6px 8px}.starmap-hud{top:calc(var(--bar-h) + 12px);padding:17px}.starmap-help{grid-template-columns:1fr}.starmap-minimap{display:none}.starmap-readout{display:none}.starmap-controls{right:12px;bottom:12px}.starmap-copy{font-size:13px}}
+
 </style>
 </head>
 <body>
@@ -509,7 +601,15 @@ body.scrolled .topbar{transform:none}
 <!-- ── TOP BAR ────────────────────────────────────────────── -->
 <header class="topbar" id="topbar">
   <a class="brand" href="#top" aria-label="人类简史 卷首">
-    <span class="seal-mini" aria-hidden="true">史</span>
+    <span class="seal-mini" aria-hidden="true">
+      <svg viewBox="0 0 32 32" focusable="false">
+        <circle class="logo-orbit logo-orbit-main" cx="16" cy="16" r="10"/>
+        <path class="logo-link" d="M10.5 18.5 16 13.2 21.5 18.5"/>
+        <circle class="logo-node" cx="10.5" cy="18.5" r="1.55"/>
+        <circle class="logo-node logo-node-core" cx="16" cy="13.2" r="2"/>
+        <circle class="logo-node" cx="21.5" cy="18.5" r="1.55"/>
+      </svg>
+    </span>
     <span class="brand-zh">人类简史</span>
     <span class="brand-en">Sapiens</span>
   </a>
@@ -519,6 +619,10 @@ body.scrolled .topbar{transform:none}
     <a href="#era-unification"  data-era="unification"><i>III</i><span>融合</span></a>
     <a href="#era-scientific"   data-era="scientific"><i>IV</i><span>科学</span></a>
   </nav>
+  <div class="mode-toggle" id="modeToggle" role="group" aria-label="阅读模式 / View mode">
+    <button data-mode="codex" class="is-active" aria-pressed="true">书卷</button>
+    <button data-mode="starmap" aria-pressed="false">星图</button>
+  </div>
   <div class="langtoggle" id="langtoggle" role="group" aria-label="语言 / Language">
     <button data-lang="both" class="is-active" aria-pressed="true">双</button>
     <button data-lang="zh" aria-pressed="false">中</button>
@@ -601,6 +705,32 @@ body.scrolled .topbar{transform:none}
   <div class="colophon-attr">据 Yuval Noah Harari《Sapiens: A Brief History of Humankind》编绘 · MMXXVI</div>
   <a class="totop uni" href="#top"><span class="zh">回到卷首</span><span class="en">to the beginning</span> ↑</a>
 </footer>
+
+
+
+<!-- ── DARK STARMAP MODE ───────────────────────────────────── -->
+<section class="starmap-app" id="starmapApp" aria-label="暗色星图模式 / Dark starmap mode" aria-hidden="true">
+  <canvas class="starmap-canvas" id="starmapCanvas"></canvas>
+  <div class="starmap-hud">
+    <div class="starmap-kicker">Interactive Star Atlas</div>
+    <h2 class="starmap-title"><span class="zh">暗色星图</span><span class="en">Dark Starmap</span></h2>
+    <p class="starmap-copy">
+      <span class="zh">把三十万年的人类历史压缩成一张可缩放的星图：拖拽穿越时代，滚轮放大细节，点击星点展开每个关键节点。</span>
+      <span class="en">A zoomable atlas of 300,000 years of human history: drag across eras, zoom into details, and open each constellation node.</span>
+    </p>
+    <div class="starmap-help" aria-hidden="true">
+      <span>Drag / 拖拽平移</span><span>Wheel / 滚轮缩放</span><span>Click / 点击展开</span><span>1–4 Jump / 跳时代</span>
+    </div>
+  </div>
+  <div class="starmap-minimap" aria-hidden="true"><canvas id="starmapMini"></canvas><span>Overview</span></div>
+  <div class="starmap-readout" id="starmapReadout">~70,000 BCE · Cognitive</div>
+  <div class="starmap-controls" aria-label="星图控制 / Starmap controls">
+    <button id="starZoomOut" aria-label="缩小 / zoom out">−</button>
+    <button id="starReset" aria-label="重置视图 / reset view">◎</button>
+    <button id="starZoomIn" aria-label="放大 / zoom in">+</button>
+  </div>
+  <div class="starmap-tip" id="starmapTip" aria-hidden="true"></div>
+</section>
 
 <!-- ── DETAIL FOLIO ───────────────────────────────────────── -->
 <div class="folio-scrim" id="folioScrim" aria-hidden="true">
@@ -1288,6 +1418,140 @@ function stepFolio(dir){
   } else { renderFolio(n); }
 }
 
+
+
+/* ── View mode toggle ──────────────────────────────────────── */
+let viewMode = "codex";
+const modeToggle = $("#modeToggle");
+function setMode(mode){
+  viewMode = mode === "starmap" ? "starmap" : "codex";
+  document.body.classList.toggle("mode-starmap", viewMode === "starmap");
+  $("#starmapApp").setAttribute("aria-hidden", viewMode === "starmap" ? "false" : "true");
+  modeToggle.querySelectorAll("button").forEach(btn=>{
+    const on = btn.dataset.mode === viewMode;
+    btn.classList.toggle("is-active", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+  if(viewMode === "starmap"){
+    starMap.mount();
+    window.scrollTo({top:0,behavior:"auto"});
+  }
+}
+
+/* ── Stable dark starmap renderer ──────────────────────────── */
+const STAR_ERAS = {
+  cognitive:{ zh:"认知革命", en:"Cognitive", color:"#8AD7FF", band:-1.05 },
+  agricultural:{ zh:"农业革命", en:"Agricultural", color:"#72B7C8", band:-0.32 },
+  unification:{ zh:"融合统一", en:"Unification", color:"#B896FF", band:0.36 },
+  scientific:{ zh:"科学革命", en:"Scientific", color:"#55E6C1", band:1.05 }
+};
+const starMap = (()=>{
+  const canvas = $("#starmapCanvas"), ctx = canvas.getContext("2d");
+  const mini = $("#starmapMini"), mctx = mini.getContext("2d");
+  const tip = $("#starmapTip"), readout = $("#starmapReadout");
+  let w=0,h=0,dpr=1,mw=0,mh=0, mounted=false;
+  let nodes=[], stars=[];
+  let scale=1, tx=0, ty=0, targetScale=1, targetTx=0, targetTy=0;
+  let dragging=false, moved=false, sx=0, sy=0, startTx=0, startTy=0;
+  let hover=-1, time=0;
+  const minZoom=.62, maxZoom=3.8;
+  const WORLD={minX:-1500,maxX:1600,minY:-520,maxY:520};
+  const ERA_RANGES={
+    cognitive:[-1320,-520], agricultural:[-360,260], unification:[390,910], scientific:[1040,1460]
+  };
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const lerp=(a,b,t)=>a+(b-a)*t;
+  const worldToScreen=(x,y)=>({x:w/2+(x+tx)*scale,y:h/2+(y+ty)*scale});
+  const screenToWorld=(x,y)=>({x:(x-w/2)/scale-tx,y:(y-h/2)/scale-ty});
+  function resize(){
+    dpr=Math.min(window.devicePixelRatio||1,2);
+    w=window.innerWidth; h=window.innerHeight;
+    canvas.width=Math.round(w*dpr); canvas.height=Math.round(h*dpr); canvas.style.width=w+"px"; canvas.style.height=h+"px"; ctx.setTransform(dpr,0,0,dpr,0,0);
+    const r=mini.getBoundingClientRect(); mw=Math.max(1,Math.round(r.width)); mh=Math.max(1,Math.round(r.height)); mini.width=Math.round(mw*dpr); mini.height=Math.round(mh*dpr); mctx.setTransform(dpr,0,0,dpr,0,0);
+    buildStars(); if(!mounted) reset();
+  }
+  function buildStars(){
+    const count=Math.round(clamp((w*h)/4200,120,360)); stars=[];
+    let seed=9127; const rnd=()=>{seed=(seed*1664525+1013904223)>>>0; return seed/4294967296};
+    for(let i=0;i<count;i++) stars.push({x:rnd()*w,y:rnd()*h,r:.35+rnd()*1.25,a:.18+rnd()*.72,p:rnd()*6.28,d:.25+rnd()*1.6});
+  }
+  function buildNodes(){
+    const byEra={}; TIMELINE_DATA.forEach(d=>(byEra[d.era]||(byEra[d.era]=[])).push(d));
+    nodes=[];
+    ERA_ORDER.forEach((era,ei)=>{
+      const arr=(byEra[era]||[]).slice().sort((a,b)=>a.year-b.year);
+      const range=ERA_RANGES[era], meta=STAR_ERAS[era];
+      arr.forEach((d,i)=>{
+        const t=arr.length>1?i/(arr.length-1):.5;
+        const lane=meta.band*250;
+        const y=lane + Math.sin((i+1)*1.34+ei*.8)*24 + ((i%2)-.5)*24;
+        const x=range[0] + t*(range[1]-range[0]);
+        const flatIndex=FLAT.findIndex(item=>item.id===d.id);
+        nodes.push({data:d,era,index:flatIndex>=0?flatIndex:nodes.length,x,y,r:d.significance==="key"?8.5:d.significance==="major"?6:4.5,color:meta.color});
+      });
+    });
+  }
+  function reset(){ targetScale=scale=clamp(Math.min(w/1180,h/680),.78,1.15); const focus=nodes.find(n=>n.data.id==="cognitive-revolution")||nodes[0]; targetTx=tx=-(focus?.x||0); targetTy=ty=-(focus?.y||0)-20; }
+  function mount(){ if(mounted){ resize(); return; } buildNodes(); resize(); mounted=true; bind(); reset(); animate(); }
+  function bind(){
+    window.addEventListener("resize",resize,{passive:true});
+    canvas.addEventListener("pointerdown",e=>{dragging=true;moved=false;sx=e.clientX;sy=e.clientY;startTx=targetTx;startTy=targetTy;canvas.setPointerCapture(e.pointerId);});
+    canvas.addEventListener("pointermove",e=>{ hover=hitTest(e.clientX,e.clientY); updateTip(e.clientX,e.clientY); if(!dragging) return; const dx=(e.clientX-sx)/scale, dy=(e.clientY-sy)/scale; if(Math.hypot(e.clientX-sx,e.clientY-sy)>3)moved=true; targetTx=startTx+dx; targetTy=startTy+dy; });
+    canvas.addEventListener("pointerup",e=>{ dragging=false; if(!moved){ const hit=hitTest(e.clientX,e.clientY); if(hit>=0) openFolio(nodes[hit].index); } });
+    canvas.addEventListener("pointerleave",()=>{hover=-1;tip.classList.remove("show");dragging=false;});
+    canvas.addEventListener("wheel",e=>{ e.preventDefault(); const before=screenToWorld(e.clientX,e.clientY); const factor=Math.exp(-e.deltaY*0.0012); targetScale=clamp(targetScale*factor,minZoom,maxZoom); targetTx=(e.clientX-w/2)/targetScale-before.x; targetTy=(e.clientY-h/2)/targetScale-before.y; },{passive:false});
+    $("#starZoomIn").addEventListener("click",()=>zoomAt(w/2,h/2,1.22));
+    $("#starZoomOut").addEventListener("click",()=>zoomAt(w/2,h/2,.82));
+    $("#starReset").addEventListener("click",reset);
+    document.addEventListener("keydown",e=>{ if(viewMode!=="starmap"||scrim.classList.contains("open")) return; const era=ERA_ORDER[+e.key-1]; if(era) jumpEra(era); if(e.key==="0") reset(); });
+  }
+  function zoomAt(px,py,f){ const before=screenToWorld(px,py); targetScale=clamp(targetScale*f,minZoom,maxZoom); targetTx=(px-w/2)/targetScale-before.x; targetTy=(py-h/2)/targetScale-before.y; }
+  function jumpEra(era){ const eraNodes=nodes.filter(n=>n.era===era); if(!eraNodes.length) return; const cx=eraNodes.reduce((s,n)=>s+n.x,0)/eraNodes.length, cy=eraNodes.reduce((s,n)=>s+n.y,0)/eraNodes.length; targetScale=clamp(Math.min(w/1040,h/520),.9,1.35); targetTx=-cx; targetTy=-cy; }
+  function hitTest(px,py){ let best=-1, bd=Infinity; nodes.forEach((n,i)=>{ const p=worldToScreen(n.x,n.y); const d=Math.hypot(px-p.x,py-p.y), rr=(n.r*scale)+12; if(d<rr&&d<bd){best=i;bd=d;} }); return best; }
+  function updateTip(px,py){ if(hover<0){tip.classList.remove("show");return;} const n=nodes[hover], d=n.data; tip.innerHTML=`<div class="year">${d.yearDisplay} · ${STAR_ERAS[n.era].en}</div><div class="name"><span class="zh">${d.titleZh}</span><span class="en">${d.titleEn}</span></div>`; tip.style.left=clamp(px,12,w-320)+"px"; tip.style.top=clamp(py,80,h-130)+"px"; tip.classList.add("show"); }
+  function drawBackground(){
+    ctx.clearRect(0,0,w,h);
+    const g=ctx.createRadialGradient(w*.52,h*.45,0,w*.52,h*.45,Math.max(w,h)*.72); g.addColorStop(0,"rgba(18,31,54,.26)"); g.addColorStop(.55,"rgba(8,13,22,.5)"); g.addColorStop(1,"rgba(0,0,0,.44)"); ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+    stars.forEach(s=>{ const tw=s.a*(.55+.45*Math.sin(time*s.d+s.p)); ctx.beginPath(); ctx.fillStyle=`rgba(230,237,243,${tw})`; ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill(); });
+  }
+  function drawNebula(){
+    ERA_ORDER.forEach(era=>{
+      const meta=STAR_ERAS[era]; const ns=nodes.filter(n=>n.era===era); if(!ns.length)return;
+      const range=ERA_RANGES[era], lane=meta.band*250;
+      const a=worldToScreen(range[0]-80,lane), b=worldToScreen(range[1]+80,lane);
+      const cx=(a.x+b.x)/2, cy=(a.y+b.y)/2, rx=Math.abs(b.x-a.x)/2, ry=92*scale;
+      const grd=ctx.createRadialGradient(cx,cy,0,cx,cy,Math.max(rx,ry));
+      grd.addColorStop(0,meta.color+"12"); grd.addColorStop(.6,meta.color+"07"); grd.addColorStop(1,"rgba(0,0,0,0)");
+      ctx.save(); ctx.translate(cx,cy); ctx.scale(Math.max(rx,1),Math.max(ry,1)); ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(0,0,1,0,Math.PI*2); ctx.fill(); ctx.restore();
+      ctx.save(); ctx.strokeStyle=meta.color+"24"; ctx.lineWidth=Math.max(.7,1.1*scale); ctx.setLineDash([5*scale,10*scale]); ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.bezierCurveTo(a.x+rx*.45,a.y-22*scale,b.x-rx*.45,b.y+22*scale,b.x,b.y); ctx.stroke(); ctx.setLineDash([]);
+      ctx.font="11px "+getComputedStyle(document.documentElement).getPropertyValue('--mono'); ctx.fillStyle=meta.color+"88"; ctx.letterSpacing="2px"; ctx.fillText(meta.en.toUpperCase(),a.x+10*scale,a.y-14*scale); ctx.restore();
+    });
+  }
+  function drawLinks(){
+    ctx.save(); ctx.lineWidth=Math.max(.45,.8*scale); ctx.globalCompositeOperation="screen";
+    ERA_ORDER.forEach(era=>{ const ns=nodes.filter(n=>n.era===era); for(let i=1;i<ns.length;i++){ const a=worldToScreen(ns[i-1].x,ns[i-1].y), b=worldToScreen(ns[i].x,ns[i].y); ctx.strokeStyle=ns[i].color+(scale>1.35?"30":"18"); ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); } });
+    ctx.restore();
+  }
+  function drawNodes(){
+    nodes.forEach((n,i)=>{ const p=worldToScreen(n.x,n.y); if(p.x<-80||p.x>w+80||p.y<-80||p.y>h+80)return; const active=i===hover; const key=n.data.significance==="key"; const r=n.r*scale*(active?1.28:1); const pulse=.5+.5*Math.sin(time*1.4+i);
+      ctx.beginPath(); ctx.fillStyle=n.color+(active?"32":key?"18":"10"); ctx.arc(p.x,p.y,r*(active?4.6:3.1+pulse*.8),0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.fillStyle="rgba(5,10,18,.96)"; ctx.strokeStyle=n.color+(key?"e6":"b8"); ctx.lineWidth=active?2.2:key?1.45:1.05; ctx.arc(p.x,p.y,r,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.fillStyle=key?n.color:"rgba(230,237,243,.74)"; ctx.arc(p.x,p.y,Math.max(1.8,r*.38),0,Math.PI*2); ctx.fill();
+      const showLabel=active || (scale>1.55 && key) || scale>2.15;
+      if(showLabel){ ctx.font=`${Math.min(14,10+scale*1.8)}px ${getComputedStyle(document.documentElement).getPropertyValue('--serif-zh')}`; ctx.fillStyle=active?"#fff":"rgba(230,237,243,.72)"; ctx.shadowColor=n.color; ctx.shadowBlur=active?14:0; ctx.fillText(document.documentElement.classList.contains('lang-en')?n.data.titleEn:n.data.titleZh,p.x+r+9,p.y-8); ctx.shadowBlur=0; ctx.font="10px "+getComputedStyle(document.documentElement).getPropertyValue('--mono'); ctx.fillStyle="rgba(230,237,243,.42)"; ctx.fillText(n.data.yearDisplayEn,p.x+r+9,p.y+9); }
+    });
+  }
+  function drawMini(){
+    const mx=x=>(x-WORLD.minX)/(WORLD.maxX-WORLD.minX)*mw, my=y=>(y-WORLD.minY)/(WORLD.maxY-WORLD.minY)*mh;
+    mctx.clearRect(0,0,mw,mh); mctx.fillStyle="rgba(8,13,22,.72)"; mctx.fillRect(0,0,mw,mh);
+    ERA_ORDER.forEach(era=>{ const meta=STAR_ERAS[era], range=ERA_RANGES[era], y=meta.band*250; mctx.strokeStyle=meta.color+"66"; mctx.lineWidth=1; mctx.beginPath(); mctx.moveTo(mx(range[0]),my(y)); mctx.lineTo(mx(range[1]),my(y)); mctx.stroke(); });
+    nodes.forEach(n=>{ mctx.fillStyle=n.color; mctx.globalAlpha=n.data.significance==="key"?.9:.55; mctx.beginPath(); mctx.arc(mx(n.x),my(n.y),n.data.significance==="key"?2.5:1.6,0,Math.PI*2); mctx.fill(); });
+    mctx.globalAlpha=1; const tl=screenToWorld(0,0), br=screenToWorld(w,h); const x=mx(tl.x), y=my(tl.y), rw=mx(br.x)-x, rh=my(br.y)-y; mctx.strokeStyle="rgba(230,237,243,.55)"; mctx.lineWidth=1; mctx.strokeRect(x,y,rw,rh);
+  }
+  function animate(ts=0){ requestAnimationFrame(animate); if(viewMode!=="starmap") return; time=ts/1000; scale=lerp(scale,targetScale,.12); tx=lerp(tx,targetTx,.12); ty=lerp(ty,targetTy,.12); drawBackground(); drawNebula(); drawLinks(); drawNodes(); drawMini(); const center=screenToWorld(w/2,h/2); const closest=nodes.reduce((a,n)=>Math.abs(n.x-center.x)<Math.abs(a.x-center.x)?n:a,nodes[0]); if(closest) readout.textContent=`${closest.data.yearDisplayEn} · ${STAR_ERAS[closest.era].en}`; }
+  return {mount,reset,jumpEra};
+})();
+
 /* ── Wiring ────────────────────────────────────────────────── */
 function wire(){
   /* entry → folio */
@@ -1309,13 +1573,19 @@ function wire(){
     else if(e.key==="ArrowRight") stepFolio(1);
   });
 
+  /* view mode toggle */
+  modeToggle.addEventListener("click",e=>{
+    const b = e.target.closest("button"); if(!b) return;
+    setMode(b.dataset.mode);
+  });
+
   /* language toggle */
   $("#langtoggle").addEventListener("click",e=>{
     const b = e.target.closest("button"); if(!b) return;
     const lang = b.dataset.lang;
     document.documentElement.className = "lang-"+lang;
     $("#langtoggle").querySelectorAll("button").forEach(x=>{
-      const on = x===b; x.classList.toggle("is-active",on); x.setAttribute("aria-pressed",on);
+      const on = x===b; x.classList.toggle("is-active",on); x.setAttribute("aria-pressed",on ? "true" : "false");
     });
   });
 
@@ -1325,6 +1595,10 @@ function wire(){
       const id = a.getAttribute("href").slice(1);
       const t = document.getElementById(id); if(!t) return;
       ev.preventDefault();
+      if(viewMode === "starmap" && id.startsWith("era-")){
+        starMap.jumpEra(id.replace("era-", ""));
+        return;
+      }
       const y = t.getBoundingClientRect().top + window.scrollY - (id==="top"?0:70);
       window.scrollTo({top:y,behavior:reduceMotion?"auto":"smooth"});
     });
